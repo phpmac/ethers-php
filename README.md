@@ -187,6 +187,34 @@ $response = $transferFunc->send([$to, $amount]);
 $tx = $transferFunc->populateTransaction([$to, $amount]);
 ```
 
+#### IDE Support (Optional)
+
+Contract uses PHP's `__call` magic method for dynamic function calls. This may cause IDE warnings like "Method not defined".
+
+**Solution 1: Use `call()` method**
+
+```php
+$name = $contract->call('name');
+$balance = $contract->call('balanceOf', [$address]);
+```
+
+**Solution 2: Create a typed subclass with PHPDoc**
+
+```php
+/**
+ * @method string name()
+ * @method string symbol()
+ * @method string balanceOf(string $owner)
+ * @method array transfer(string $to, string $amount)
+ */
+class TokenContract extends Contract {}
+
+$contract = new TokenContract($address, $abi, $provider);
+$name = $contract->name(); // IDE recognizes with full type hints
+```
+
+See [CLAUDE.md](CLAUDE.md) for more details.
+
 ### Deploy Contract (ContractFactory)
 
 ```php

@@ -187,6 +187,34 @@ $response = $transferFunc->send([$to, $amount]);
 $tx = $transferFunc->populateTransaction([$to, $amount]);
 ```
 
+#### IDE 支持（可选）
+
+Contract 使用 PHP 的 `__call` 魔术方法进行动态函数调用，IDE 可能会提示"方法未定义"警告。
+
+**方案 1：使用 `call()` 方法**
+
+```php
+$name = $contract->call('name');
+$balance = $contract->call('balanceOf', [$address]);
+```
+
+**方案 2：创建带 PHPDoc 的类型化子类**
+
+```php
+/**
+ * @method string name()
+ * @method string symbol()
+ * @method string balanceOf(string $owner)
+ * @method array transfer(string $to, string $amount)
+ */
+class TokenContract extends Contract {}
+
+$contract = new TokenContract($address, $abi, $provider);
+$name = $contract->name(); // IDE 识别并提供完整类型提示
+```
+
+详见 [CLAUDE.md](CLAUDE.md)。
+
 ### 部署合约（ContractFactory）
 
 ```php
