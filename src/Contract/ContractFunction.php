@@ -115,8 +115,9 @@ class ContractFunction
         $result = $provider->call($tx);
         $decoded = $this->contract->getInterface()->decodeFunctionResult($this->getName(), $result);
 
-        // 如果只有一个返回值, 直接返回
-        if (count($decoded) === 1) {
+        // 如果只有一个返回值, 直接返回值 (符合 ethers.js 行为)
+        $outputs = $this->fragment['outputs'] ?? [];
+        if (count($outputs) === 1) {
             return $decoded[0];
         }
 
