@@ -667,7 +667,7 @@ class Interface_
      *
      * @param  string  $name  函数名
      * @param  string  $data  返回数据
-     * @return array 解码后的值
+     * @return array 解码后的值 (同时支持数字索引和参数名访问)
      */
     public function decodeFunctionResult(string $name, string $data): array
     {
@@ -677,8 +677,19 @@ class Interface_
         }
 
         $types = array_map(fn ($output) => $output['type'], $func['outputs']);
+        $decoded = $this->abiCoder->decode($types, $data);
 
-        return $this->abiCoder->decode($types, $data);
+        // 同时保留数字索引和名称键,与 ethers.js Result 类行为一致
+        $result = [];
+        foreach ($func['outputs'] as $i => $output) {
+            $value = $decoded[$i] ?? null;
+            $result[$i] = $value;  // 数字索引
+            if (! empty($output['name'])) {
+                $result[$output['name']] = $value;  // 名称键
+            }
+        }
+
+        return $result;
     }
 
     /**

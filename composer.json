@@ -31,6 +31,7 @@
         "simplito/elliptic-php": "^1.0"
     },
     "require-dev": {
+        "laravel/pint": "^1.27",
         "phpunit/phpunit": "^11.0"
     },
     "scripts": {
