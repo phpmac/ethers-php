@@ -60,11 +60,58 @@ $lastOrderId = $contract->getFunction('lastOrderId')->staticCall([]);
 
 ## 返回类型参考
 
+### 基础类型
+
 | Solidity 类型 | PHP 返回类型 | 示例 |
 |--------------|-------------|------|
 | uint256/int256 | string (BigInt) | `@method string balanceOf()` |
 | address | string | `@method string getOwner()` |
 | bool | bool | `@method bool isActive()` |
 | bytes/string | string | `@method string name()` |
-| struct/tuple | array | `@method array getUserInfo()` |
-| 交易 | array | `@method array transfer(string $to, string $amount)` |
+
+### 复杂类型 (PHPStan/Psalm 数组形状)
+
+对于返回复杂结构的函数,使用数组形状类型获得更精确的 IDE 提示:
+
+**交易函数** - 返回包含 `hash` 和 `wait` 的数组:
+
+```php
+/**
+ * @method array{hash: string, wait: callable} processOrders(string $count)
+ */
+
+// 使用
+$tx = $contract->processOrders('5');
+$hash = $tx['hash'];           // IDE 识别为 string
+$receipt = $tx['wait'](1, 180); // 等待 1 个确认,最多 180 秒
+```
+
+**结构体/元组** - 详细定义返回字段:
+
+```php
+/**
+ * @method array{id: string, amount: string, user: string, status: bool} getOrder(string $orderId)
+ */
+```
+
+### 完整示例
+
+```php
+/**
+ * Staking 合约 IDE 支持类
+ *
+ * 只读函数 (返回简单类型)
+ * @method string lastOrderId()
+ * @method string lastProcessedOrderId()
+ * @method bool isProcessed(string $orderId)
+ *
+ * 交易函数 (返回 hash + wait)
+ * @method array{hash: string, wait: callable} processOrders(string $count)
+ *
+ * 返回结构体
+ * @method array{id: string, amount: string, user: string} getOrder(string $orderId)
+ */
+class StakingContract extends Contract
+{
+}
+```
