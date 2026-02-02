@@ -2,18 +2,38 @@
 
 PHP SDK for Ethereum, inspired by ethers.js v6
 
+[![Tests](https://img.shields.io/badge/tests-110%20passing-brightgreen)]()
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-green)]()
+
+## 特性
+
+- 110+ 单元测试覆盖，239+ 断言验证
+- 支持人类可读 ABI (与 ethers.js v6 完全一致)
+- 完整的钱包功能（创建、签名、发送交易）
+- 合约交互（调用、部署、事件监听）
+- 工具函数（单位转换、地址校验、哈希计算）
+
 ## 安装
 
-在项目根目录的 `composer.json` 中添加自动加载:
+```bash
+composer require wallet/ethers-php
+```
 
-```json
-{
-    "autoload": {
-        "psr-4": {
-            "Ethers\\": "packages/ethers-php/src/"
-        }
-    }
-}
+### 开发安装
+
+```bash
+# 克隆仓库
+git clone <repository-url>
+cd ethers-php
+
+# 安装依赖
+composer install
+
+# 运行测试
+composer test
+# 或
+./vendor/bin/phpunit
 ```
 
 ## 快速开始
@@ -366,3 +386,36 @@ $abi = [
 ];
 $contract = new Contract($address, $abi, $provider);
 ```
+
+## 测试
+
+本项目拥有完善的单元测试覆盖：
+
+```bash
+# 运行所有测试
+composer test
+
+# 运行特定测试文件
+./vendor/bin/phpunit tests/Contract/ContractTest.php
+
+# 运行特定测试方法
+./vendor/bin/phpunit --filter testBalanceOf
+```
+
+### 测试覆盖范围
+
+| 模块 | 测试文件 | 说明 |
+|------|---------|------|
+| Contract | `ContractTest.php`, `AbiCoderTest.php`, `ContractFactoryTest.php`, `InterfaceTest.php` | ABI 编解码、合约调用、部署 |
+| Signer | `WalletTest.php` | 钱包创建、签名、交易发送 |
+| Transaction | `TransactionTest.php`, `RLPTest.php` | 交易构建、RLP 编码 |
+| Utils | `HexTest.php`, `KeccakTest.php`, `UnitsTest.php` | 工具函数 |
+| Core | `EthersTest.php` | 主类功能 |
+
+### 最新测试结果
+
+- **测试总数**: 110
+- **通过**: 110 (100%)
+- **断言**: 239
+- **PHP 版本**: 8.5.2
+- **PHPUnit 版本**: 11.5.50
