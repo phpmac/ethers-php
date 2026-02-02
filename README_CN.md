@@ -1,26 +1,26 @@
 # ethers-php
 
-PHP SDK for Ethereum, inspired by ethers.js v6
+PHP SDK for Ethereum，inspired by ethers.js v6
 
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
 
-[中文文档](README_CN.md)
+[English Documentation](README.md)
 
-## Features
+## 特性
 
-- Human-readable ABI support (fully compatible with ethers.js v6)
-- Complete wallet functionality (creation, signing, sending transactions)
-- Contract interaction (calling, deployment, event listening)
-- Utility functions (unit conversion, address validation, hashing)
+- 支持人类可读 ABI（与 ethers.js v6 完全一致）
+- 完整的钱包功能（创建、签名、发送交易）
+- 合约交互（调用、部署、事件监听）
+- 工具函数（单位转换、地址校验、哈希计算）
 
-## Installation
+## 安装
 
 ```bash
 composer require phpmac/ethers-php
 ```
 
-## Quick Start
+## 快速开始
 
 ### Provider
 
@@ -28,28 +28,28 @@ composer require phpmac/ethers-php
 use Ethers\Ethers;
 use Ethers\Provider\JsonRpcProvider;
 
-// Create Provider
+// 创建 Provider
 $provider = new JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_KEY');
 
-// Or use static method
+// 或使用静态方法
 $provider = Ethers::getDefaultProvider('https://mainnet.infura.io/v3/YOUR_KEY');
 
-// Get network info
+// 获取网络信息
 $network = $provider->getNetwork();
-echo "Chain ID: " . $network['chainId'];  // 1
-echo "Name: " . $network['name'];         // mainnet
+echo "Chain ID：" . $network['chainId'];  // 1
+echo "Name：" . $network['name'];         // mainnet
 
-// Get current block number
+// 获取当前区块号
 $blockNumber = $provider->getBlockNumber();
 
-// Get account balance
+// 获取账户余额
 $balance = $provider->getBalance('0x...');
 echo Ethers::formatEther($balance) . " ETH";
 
-// Get gas price
+// 获取 Gas 价格
 $gasPrice = $provider->getGasPrice();
 
-// Get fee data (EIP-1559)
+// 获取费用数据（EIP-1559）
 $feeData = $provider->getFeeData();
 ```
 
@@ -58,39 +58,39 @@ $feeData = $provider->getFeeData();
 ```php
 use Ethers\Signer\Wallet;
 
-// Create wallet from private key
+// 从私钥创建钱包
 $wallet = new Wallet('0x...');
 
-// Connect to Provider
+// 连接 Provider
 $wallet = $wallet->connect($provider);
 
-// Get address
+// 获取地址
 $address = $wallet->getAddress();
 
-// Get balance
+// 获取余额
 $balance = $wallet->getBalance();
 
-// Get nonce
+// 获取 nonce
 $nonce = $wallet->getNonce();
 
-// Sign message
+// 签名消息
 $signature = $wallet->signMessage('Hello World');
 
-// Send transaction
+// 发送交易
 $response = $wallet->sendTransaction([
     'to' => '0x...',
     'value' => Ethers::parseEther('0.1'),
 ]);
 
-// Wait for confirmation
-$receipt = $response['wait'](1);  // wait for 1 confirmation
+// 等待确认
+$receipt = $response['wait'](1);  // 等待 1 个确认
 ```
 
 ### Contract
 
-Supports two ABI formats:
+支持两种 ABI 格式：
 
-#### 1. Human-readable ABI (recommended, same as ethers.js)
+#### 1. 人类可读 ABI（推荐，与 ethers.js 一致）
 
 ```php
 use Ethers\Ethers;
@@ -98,7 +98,7 @@ use Ethers\Ethers;
 $provider = Ethers::getDefaultProvider('https://mainnet.infura.io/v3/YOUR_KEY');
 $contractAddress = '0x...';
 
-// Human-readable ABI - same syntax as ethers.js
+// 人类可读 ABI —— 与 ethers.js 完全一致的写法
 $abi = [
     'function name() view returns (string)',
     'function symbol() view returns (string)',
@@ -110,7 +110,7 @@ $abi = [
 
 $contract = Ethers::contract($contractAddress, $abi, $provider);
 
-// Call read-only methods - same as ethers.js
+// 调用只读方法 —— 与 ethers.js 完全一致
 $name = $contract->name();
 $symbol = $contract->symbol();
 $balance = $contract->balanceOf($userAddress);
@@ -118,12 +118,12 @@ $balance = $contract->balanceOf($userAddress);
 echo "$name ($symbol): $balance";
 ```
 
-#### 2. JSON ABI format
+#### 2. JSON ABI 格式
 
 ```php
 use Ethers\Contract\Contract;
 
-// Standard JSON ABI
+// 标准 JSON ABI
 $erc20Abi = [
     [
         'type' => 'function',
@@ -148,30 +148,30 @@ $contract = new Contract($tokenAddress, $erc20Abi, $provider);
 $balance = $contract->balanceOf($userAddress);
 ```
 
-#### Write operations
+#### 写入操作
 
 ```php
-// Connect Wallet for write operations
+// 连接 Wallet 进行写操作
 $wallet = Ethers::wallet($privateKey, $provider);
 $contract = Ethers::contract($tokenAddress, $abi, $wallet);
 
-// Send transaction - same as ethers.js
+// 发送交易 —— 与 ethers.js 一致
 $response = $contract->transfer($toAddress, Ethers::parseUnits('100', 18));
 $receipt = $response['wait']();
 
-echo "Tx Hash: " . $response['hash'];
+echo "Tx Hash：" . $response['hash'];
 
-// Estimate gas
+// 估算 Gas
 $gas = $contract->estimateGas('transfer', [$toAddress, Ethers::parseUnits('100', 18)]);
 
-// Static call
+// 模拟调用（staticCall）
 $result = $contract->staticCall('transfer', [$toAddress, Ethers::parseUnits('100', 18)]);
 ```
 
-#### ContractFunction style calls
+#### ContractFunction 风格调用
 
 ```php
-// Get function object - similar to ethers.js contract.transfer
+// 获取函数对象 —— 类似 ethers.js 的 contract.transfer
 $transferFunc = $contract->getFunction('transfer');
 
 // staticCall
@@ -187,13 +187,13 @@ $response = $transferFunc->send([$to, $amount]);
 $tx = $transferFunc->populateTransaction([$to, $amount]);
 ```
 
-### Deploy Contract (ContractFactory)
+### 部署合约（ContractFactory）
 
 ```php
 use Ethers\Ethers;
 use Ethers\Contract\ContractFactory;
 
-// Human-readable ABI
+// 人类可读 ABI
 $abi = [
     'constructor(string name, string symbol)',
     'function name() view returns (string)',
@@ -201,137 +201,137 @@ $abi = [
     'function totalSupply() view returns (uint256)',
 ];
 
-// Contract bytecode (from compiler)
+// 合约字节码（从编译器获取）
 $bytecode = '0x608060405234801561001057600080fd5b50...';
 
-// Create Factory
+// 创建 Factory
 $factory = Ethers::contractFactory($abi, $bytecode, $wallet);
 
-// Or instantiate directly
+// 或直接实例化
 $factory = new ContractFactory($abi, $bytecode, $wallet);
 
-// Deploy contract - pass constructor arguments
+// 部署合约 - 传入构造函数参数
 $contract = $factory->deploy('My Token', 'MTK');
 
-// Wait for deployment
+// 等待部署完成
 $contract->waitForDeployment();
 
 echo "Deployed to: " . $contract->target;
 
-// Get deployment transaction
+// 获取部署交易
 $deployTx = $contract->deploymentTransaction();
 echo "Tx Hash: " . $deployTx['hash'];
 
-// Call contract methods
+// 调用合约方法
 $name = $contract->name();  // "My Token"
 ```
 
-### Parse ABI (Interface)
+### 解析 ABI（Interface）
 
 ```php
 use Ethers\Ethers;
 use Ethers\Contract\Interface_;
 
-// Create Interface from human-readable format
+// 从人类可读格式创建 Interface
 $interface = Ethers::parseAbi([
     'function transfer(address to, uint256 amount) returns (bool)',
     'event Transfer(address indexed from, address indexed to, uint256 value)',
 ]);
 
-// Or instantiate directly
+// 或直接实例化
 $interface = new Interface_([
     'function transfer(address to, uint256 amount) returns (bool)',
 ]);
 
-// Encode function call
+// 编码函数调用
 $data = $interface->encodeFunctionData('transfer', [$to, $amount]);
 
-// Decode function call
+// 解码函数调用
 $args = $interface->decodeFunctionData('transfer', $data);
 
-// Get function selector
+// 获取函数选择器
 $func = $interface->getFunction('transfer');
 echo $func['selector'];  // 0xa9059cbb
 
-// Format to human-readable
+// 格式化为人类可读格式
 $fragments = $interface->format('minimal');
 ```
 
-### Utility Functions
+### 工具函数
 
 ```php
 use Ethers\Ethers;
 
-// Unit conversion
+// 单位转换
 $wei = Ethers::parseEther('1.5');         // "1500000000000000000"
 $ether = Ethers::formatEther($wei);       // "1.5"
 
-$units = Ethers::parseUnits('100', 6);    // USDT 6 decimals
+$units = Ethers::parseUnits('100', 6);    // USDT 的 6 位精度
 $formatted = Ethers::formatUnits($units, 6);
 
-// Hash
+// 哈希
 $hash = Ethers::keccak256('Hello');
 
-// Function selector
+// 函数选择器
 $selector = Ethers::id('transfer(address,uint256)');  // "0xa9059cbb"
 
-// Address validation
+// 地址校验
 $isValid = Ethers::isAddress('0x...');
 $checksumAddress = Ethers::getAddress('0x...');
 
-// Constants
+// 常量
 $zero = Ethers::zeroAddress();
 $zeroHash = Ethers::zeroHash();
 ```
 
-## API Reference
+## API 参考
 
 ### JsonRpcProvider
 
-| Method | Description |
-|--------|-------------|
-| `getChainId()` | Get chain ID |
-| `getNetwork()` | Get network info |
-| `getBlockNumber()` | Get current block number |
-| `getBalance($address)` | Get account balance |
-| `getTransactionCount($address)` | Get transaction count (nonce) |
-| `getGasPrice()` | Get gas price |
-| `getFeeData()` | Get fee data (EIP-1559) |
-| `estimateGas($tx)` | Estimate gas |
-| `call($tx)` | Read-only call |
-| `sendRawTransaction($signedTx)` | Send signed transaction |
-| `getTransaction($hash)` | Get transaction info |
-| `getTransactionReceipt($hash)` | Get transaction receipt |
-| `waitForTransaction($hash)` | Wait for transaction confirmation |
-| `getBlock($blockHashOrNumber)` | Get block info |
-| `getLogs($filter)` | Get event logs |
+| 方法 | 说明 |
+|------|------|
+| `getChainId()` | 获取链 ID |
+| `getNetwork()` | 获取网络信息 |
+| `getBlockNumber()` | 获取当前区块号 |
+| `getBalance($address)` | 获取账户余额 |
+| `getTransactionCount($address)` | 获取交易计数（nonce） |
+| `getGasPrice()` | 获取 Gas 价格 |
+| `getFeeData()` | 获取费用数据（EIP-1559）|
+| `estimateGas($tx)` | 估算 Gas |
+| `call($tx)` | 只读调用 |
+| `sendRawTransaction($signedTx)` | 发送已签名交易 |
+| `getTransaction($hash)` | 获取交易信息 |
+| `getTransactionReceipt($hash)` | 获取交易回执 |
+| `waitForTransaction($hash)` | 等待交易确认 |
+| `getBlock($blockHashOrNumber)` | 获取区块信息 |
+| `getLogs($filter)` | 获取事件日志 |
 
 ### Wallet
 
-| Method | Description |
-|--------|-------------|
-| `getAddress()` | Get address |
-| `getPrivateKey()` | Get private key |
-| `connect($provider)` | Connect to Provider |
-| `getBalance()` | Get balance |
-| `getNonce()` | Get nonce |
-| `signMessage($message)` | Sign message |
-| `signTransaction($tx)` | Sign transaction |
-| `sendTransaction($tx)` | Send transaction |
-| `createRandom()` | Create random wallet |
+| 方法 | 说明 |
+|------|------|
+| `getAddress()` | 获取地址 |
+| `getPrivateKey()` | 获取私钥 |
+| `connect($provider)` | 连接 Provider |
+| `getBalance()` | 获取余额 |
+| `getNonce()` | 获取 nonce |
+| `signMessage($message)` | 签名消息 |
+| `signTransaction($tx)` | 签名交易 |
+| `sendTransaction($tx)` | 发送交易 |
+| `createRandom()` | 创建随机钱包 |
 
 ### Contract
 
-| Method | Description |
-|--------|-------------|
-| `call($method, $args)` | Read-only call |
-| `send($method, $args)` | Send transaction |
-| `staticCall($method, $args)` | Static call |
-| `estimateGas($method, $args)` | Estimate gas |
-| `encodeFunction($method, $args)` | Encode function call |
-| `queryFilter($eventName, $filter)` | Query event logs |
+| 方法 | 说明 |
+|------|------|
+| `call($method, $args)` | 只读调用 |
+| `send($method, $args)` | 发送交易 |
+| `staticCall($method, $args)` | 模拟调用 |
+| `estimateGas($method, $args)` | 估算 Gas |
+| `encodeFunction($method, $args)` | 编码函数调用 |
+| `queryFilter($eventName, $filter)` | 查询事件日志 |
 
-## Comparison with ethers.js v6
+## 与 ethers.js v6 对比
 
 | ethers.js v6 | ethers-php |
 |--------------|------------|
@@ -349,7 +349,7 @@ $zeroHash = Ethers::zeroHash();
 | `factory.deploy(arg1, arg2)` | `$factory->deploy($arg1, $arg2)` |
 | `contract.waitForDeployment()` | `$contract->waitForDeployment()` |
 
-### ABI Format Comparison
+### ABI 格式对比
 
 ```javascript
 // ethers.js v6
@@ -362,7 +362,7 @@ const contract = new ethers.Contract(address, abi, provider);
 ```
 
 ```php
-// ethers-php - exactly the same syntax
+// ethers-php —— 完全一致的写法
 $abi = [
     'function name() view returns (string)',
     'function transfer(address to, uint256 amount) returns (bool)',
@@ -370,3 +370,4 @@ $abi = [
 ];
 $contract = new Contract($address, $abi, $provider);
 ```
+

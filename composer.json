@@ -1,5 +1,5 @@
 {
-    "name": "wallet/ethers-php",
+    "name": "phpmac/ethers-php",
     "description": "PHP SDK for Ethereum, inspired by ethers.js v6",
     "type": "library",
     "license": "MIT",
@@ -34,7 +34,8 @@
         "phpunit/phpunit": "^11.0"
     },
     "scripts": {
-        "test": "phpunit --colors=always"
+        "test": "phpunit --colors=always",
+        "test:verbose": "phpunit --testdox --colors=always"
     },
     "config": {
         "sort-packages": true
