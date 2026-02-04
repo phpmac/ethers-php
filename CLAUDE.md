@@ -76,6 +76,18 @@ $lastOrderId = $contract->lastOrderId(); // IDE 正常识别,有类型提示
 $lastOrderId = $contract->getFunction('lastOrderId')->staticCall([]);
 ```
 
+## 批量请求 (multicall)
+
+使用 JSON-RPC 2.0 批量请求特性,将多个合约调用合并为**一次 HTTP 请求**.
+
+**参考示例:** `examples/multicall_demo.php`
+
+**关键特点:**
+
+- 一次 HTTP 请求获取多个数据
+- 返回顺序与请求顺序一致
+- 使用 `Units::formatUnits()` 格式化代币数量
+
 ## 版本发布
 
 遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范:

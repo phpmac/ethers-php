@@ -115,6 +115,93 @@ class JsonRpcProvider
     }
 
     /**
+     * 发送 JSON-RPC 批量请求 (一次网络请求多个调用)
+     *
+     * **重要**: 此方法使用 JSON-RPC 2.0 批量请求特性，将多个 RPC 调用合并为一次 HTTP 请求
+     *
+     * @param  array<int, array{method: string, params: array, context?: array}>  $requests  请求数组
+     * @return array<int, mixed> 返回结果数组 (顺序与请求一致)
+     *
+     * @throws NetworkError
+     * @throws ServerError
+     * @throws TimeoutError
+     */
+    public function sendBatch(array $requests): array
+    {
+        $payload = [];
+        $requestIdToIndex = [];
+
+        foreach ($requests as $index => $request) {
+            $id = $this->requestId++;
+            $requestIdToIndex[$id] = $index;
+            $payload[] = [
+                'jsonrpc' => '2.0',
+                'method' => $request['method'],
+                'params' => $request['params'] ?? [],
+                'id' => $id,
+            ];
+        }
+
+        try {
+            $response = $this->client->post($this->url, [
+                'json' => $payload,
+            ]);
+
+            $bodies = json_decode($response->getBody()->getContents(), true);
+
+            // 初始化结果数组
+            $results = array_fill(0, count($requests), null);
+
+            foreach ($bodies as $body) {
+                $id = $body['id'] ?? null;
+                $originalIndex = $requestIdToIndex[$id] ?? null;
+
+                if ($originalIndex === null) {
+                    continue;
+                }
+
+                $originalRequest = $requests[$originalIndex];
+                $context = $originalRequest['context'] ?? [];
+                $method = $originalRequest['method'];
+
+                if (isset($body['error'])) {
+                    $error = $body['error'];
+                    $message = $error['message'] ?? 'Unknown RPC error';
+                    $code = $error['code'] ?? -1;
+                    $data = $error['data'] ?? null;
+
+                    $results[$originalIndex] = $this->parseRpcError($code, $message, $data, $method, $context);
+                } else {
+                    $results[$originalIndex] = $body['result'] ?? null;
+                }
+            }
+
+            return $results;
+        } catch (ConnectException $e) {
+            throw new NetworkError(
+                'RPC 批量连接失败: '.$e->getMessage(),
+                'connect',
+                ['url' => $this->url]
+            );
+        } catch (GuzzleException $e) {
+            if (str_contains($e->getMessage(), 'timed out') || str_contains($e->getMessage(), 'timeout')) {
+                throw new TimeoutError(
+                    'RPC 批量请求超时: '.$e->getMessage(),
+                    'sendBatch',
+                    'timeout',
+                    ['url' => $this->url]
+                );
+            }
+
+            throw new NetworkError(
+                'RPC 批量请求失败: '.$e->getMessage(),
+                'request',
+                ['url' => $this->url]
+            );
+        }
+    }
+
+    /**
      * 解析 RPC 错误并返回对应的异常
      *
      * @param  int  $code  RPC 错误代码

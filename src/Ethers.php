@@ -10,6 +10,7 @@ use Ethers\Contract\ContractFactory;
 use Ethers\Contract\Interface_;
 use Ethers\Provider\JsonRpcProvider;
 use Ethers\Signer\Wallet;
+use Ethers\Transaction\RLP;
 use Ethers\Utils\Hex;
 use Ethers\Utils\Keccak;
 use Ethers\Utils\Units;
@@ -198,6 +199,42 @@ class Ethers
         }
 
         return $checksumAddress;
+    }
+
+    /**
+     * 计算合约部署地址 (CREATE)
+     *
+     * 参考 ethers.js v6 的 getCreateAddress
+     *
+     * @param  string  $from  发送者地址
+     * @param  int|string  $nonce  交易 nonce
+     * @return string 合约地址 (带 EIP-55 checksum)
+     */
+    public static function getCreateAddress(string $from, int|string $nonce): string
+    {
+        $from = strtolower(substr($from, 2));
+
+        // 格式化 nonce 为十六进制
+        if (is_string($nonce) && str_starts_with($nonce, '0x')) {
+            $nonceHex = substr($nonce, 2);
+        } else {
+            $nonceHex = dechex((int) $nonce);
+        }
+
+        if ($nonceHex === '0' || $nonceHex === '') {
+            $nonceHex = '';
+        } elseif (strlen($nonceHex) % 2 === 1) {
+            $nonceHex = '0'.$nonceHex;
+        }
+
+        // RLP 编码 [from, nonce]
+        $encoded = RLP::encode([$from, $nonceHex]);
+
+        // Keccak256 哈希并取后 20 字节
+        $hash = Keccak::hash(hex2bin($encoded));
+        $address = '0x'.substr($hash, -40);
+
+        return self::getAddress($address);
     }
 
     /**

@@ -64,16 +64,67 @@ class Contract extends BaseContract
     /**
      * 批量调用只读方法
      *
+     * **重要**: 此方法使用 JSON-RPC 2.0 批量请求特性，将所有调用合并为一次 HTTP 请求
+     *
      * @param  array  $calls  调用数组, 每个元素为 ['method' => string, 'args' => array]
-     * @return array 返回值数组
+     * @return array 返回值数组 (顺序与请求一致)
+     *
+     * @throws \RuntimeException 当没有 Provider 时
      */
     public function multicall(array $calls): array
     {
-        $results = [];
-        foreach ($calls as $call) {
-            $results[] = $this->call($call['method'], $call['args'] ?? []);
+        $provider = $this->getProvider();
+        if ($provider === null) {
+            throw new \RuntimeException('需要 Provider 才能使用 multicall');
         }
 
-        return $results;
+        if (empty($calls)) {
+            return [];
+        }
+
+        // 构建批量请求
+        $requests = [];
+        foreach ($calls as $call) {
+            $func = $this->getFunction($call['method']);
+            if ($func === null) {
+                throw new \InvalidArgumentException("方法 {$call['method']} 不存在");
+            }
+
+            $args = $call['args'] ?? [];
+            $data = $this->interface->encodeFunctionData($call['method'], $args);
+
+            $tx = [
+                'to' => $this->target,
+                'data' => $data,
+            ];
+
+            // 如果有 signer, 添加 from
+            $signer = $this->getSigner();
+            if ($signer !== null) {
+                $tx['from'] = $signer->getAddress();
+            }
+
+            $requests[] = [
+                'method' => 'eth_call',
+                'params' => [$tx, 'latest'],
+                'context' => ['transaction' => $tx],
+            ];
+        }
+
+        // 发送批量请求 (一次网络请求)
+        $results = $provider->sendBatch($requests);
+
+        // 解码结果
+        $decoded = [];
+        foreach ($results as $index => $result) {
+            if ($result instanceof \Throwable) {
+                throw $result;
+            }
+
+            $method = $calls[$index]['method'];
+            $decoded[] = $this->interface->decodeFunctionResult($method, $result);
+        }
+
+        return $decoded;
     }
 }

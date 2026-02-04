@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ethers\Signer;
 
 use Elliptic\EC;
+use Ethers\Errors\CancelledError;
 use Ethers\Provider\JsonRpcProvider;
 use Ethers\Transaction\Transaction;
 use Ethers\Utils\Hex;
@@ -56,9 +57,10 @@ class Wallet
         $hash = \kornrunner\Keccak::hash(hex2bin($publicKey), 256);
 
         // 取后 20 字节 (40 个十六进制字符) 作为地址
-        $address = '0x'.substr($hash, -40);
+        $address = substr($hash, -40);
 
-        return strtolower($address);
+        // 计算 EIP-55 checksum 地址
+        return $this->toChecksumAddress($address);
     }
 
     /**
@@ -273,6 +275,53 @@ class Wallet
     }
 
     /**
+     * 取消 pending 的交易
+     *
+     * 原理: 用相同的 nonce 发送一个 0 ETH 给自己的交易，覆盖原交易
+     *
+     * @param string $txHash 要取消的交易哈希
+     * @param float $gasPriceBump gas 价格提升比例 (默认 10%)
+     * @return array{hash: string, wait: callable} 取消交易的响应
+     * @throws RuntimeException
+     */
+    public function cancelTransaction(string $txHash, float $gasPriceBump = 0.1): array
+    {
+        if ($this->provider === null) {
+            throw new RuntimeException('需要连接 Provider 才能取消交易');
+        }
+
+        // 获取原交易
+        $tx = $this->provider->getTransaction($txHash);
+        if ($tx === null) {
+            throw new RuntimeException('交易不存在');
+        }
+
+        // 检查交易是否已确认
+        if ($tx['blockNumber'] !== null) {
+            throw new RuntimeException('交易已确认，无法取消');
+        }
+
+        // 构建取消交易
+        $cancelTx = [
+            'to' => $this->address,
+            'value' => '0',
+            'nonce' => $tx['nonce'],
+        ];
+
+        // 计算更高的 gas price (至少比原交易高 10%)
+        if (isset($tx['maxFeePerGas'])) {
+            // EIP-1559 交易
+            $cancelTx['maxFeePerGas'] = (int) ($tx['maxFeePerGas'] * (1 + $gasPriceBump));
+            $cancelTx['maxPriorityFeePerGas'] = (int) ($tx['maxPriorityFeePerGas'] * (1 + $gasPriceBump));
+        } else {
+            // Legacy 交易
+            $cancelTx['gasPrice'] = (int) ($tx['gasPrice'] * (1 + $gasPriceBump));
+        }
+
+        return $this->sendTransaction($cancelTx);
+    }
+
+    /**
      * 创建随机钱包
      */
     public static function createRandom(?JsonRpcProvider $provider = null): self
@@ -280,5 +329,27 @@ class Wallet
         $privateKey = bin2hex(random_bytes(32));
 
         return new self($privateKey, $provider);
+    }
+
+    /**
+     * 将地址转换为 EIP-55 checksum 格式
+     */
+    private function toChecksumAddress(string $address): string
+    {
+        $address = strtolower($address);
+        $hash = \kornrunner\Keccak::hash($address, 256);
+
+        $checksumAddress = '0x';
+        for ($i = 0; $i < 40; $i++) {
+            $char = $address[$i];
+            $hashChar = $hash[$i];
+            if (ctype_alpha($char) && intval($hashChar, 16) >= 8) {
+                $checksumAddress .= strtoupper($char);
+            } else {
+                $checksumAddress .= $char;
+            }
+        }
+
+        return $checksumAddress;
     }
 }

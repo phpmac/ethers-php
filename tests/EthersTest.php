@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Ethers;
+namespace Ethers\Tests;
 
 use Ethers\Contract\ContractFactory;
 use Ethers\Contract\Interface_;

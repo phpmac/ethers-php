@@ -56,9 +56,9 @@ class InsufficientFundsError extends EthersException
         ?array $transaction = null
     ): self {
         return new self(
-            "RPC Error [{$rpcCode}]: {$rpcMessage}",
+            'insufficient funds',
             $transaction,
-            ['rpcCode' => $rpcCode]
+            ['rpcCode' => $rpcCode, 'rpcMessage' => $rpcMessage]
         );
     }
 }

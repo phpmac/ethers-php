@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ethers\Contract;
 
+use Ethers\Ethers;
 use Ethers\Signer\Wallet;
 use Ethers\Utils\Hex;
 use InvalidArgumentException;
@@ -119,6 +120,15 @@ class ContractFactory
             $data .= Hex::stripPrefix($encodedArgs);
         }
 
+        // 获取当前 nonce 以计算合约地址
+        $nonce = $this->runner->getNonce();
+
+        // 使用 getCreateAddress 计算合约地址
+        $contractAddress = Ethers::getCreateAddress(
+            $this->runner->getAddress(),
+            $nonce
+        );
+
         // 构建交易
         $tx = array_merge([
             'data' => $data,
@@ -128,14 +138,8 @@ class ContractFactory
         $response = $this->runner->sendTransaction($tx);
         $hash = $response['hash'];
 
-        // 等待交易确认获取合约地址
+        // 等待交易确认
         $receipt = $response['wait'](1, 120);
-
-        if (! isset($receipt['contractAddress'])) {
-            throw new RuntimeException('部署失败: 交易回执中没有合约地址');
-        }
-
-        $contractAddress = $receipt['contractAddress'];
 
         // 创建合约实例
         $contract = new BaseContract(

@@ -45,16 +45,30 @@ class NonceExpiredError extends EthersException
 
     /**
      * 从 RPC 错误创建
+     *
+     * 注意: 仅用于真正的 nonce 过期错误
+     * replacement transaction underpriced 应该用 ReplacementUnderpricedError
      */
     public static function fromRpcError(
         int $rpcCode,
         string $rpcMessage,
         ?array $transaction = null
     ): self {
+        // 映射 RPC 错误到友好消息 (仅限 nonce 相关)
+        $friendlyMessage = match (true) {
+            str_contains($rpcMessage, 'nonce too low') =>
+                'nonce has already been used',
+            str_contains($rpcMessage, 'nonce too high') =>
+                'nonce too high',
+            str_contains($rpcMessage, 'invalid nonce') =>
+                'invalid nonce',
+            default => $rpcMessage,
+        };
+
         return new self(
-            "RPC Error [{$rpcCode}]: {$rpcMessage}",
+            $friendlyMessage,
             $transaction,
-            ['rpcCode' => $rpcCode]
+            ['rpcCode' => $rpcCode, 'rpcMessage' => $rpcMessage]
         );
     }
 }

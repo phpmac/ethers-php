@@ -28,6 +28,19 @@ class RLP
     }
 
     /**
+     * RLP 编码 (支持带 0x 前缀的十六进制字符串)
+     *
+     * @param  array  $input  输入数组 (十六进制字符串数组)
+     * @return string 编码后的十六进制字符串 (带 0x 前缀)
+     */
+    public static function encodeHex(array $input): string
+    {
+        $encoded = self::encodeList($input);
+
+        return '0x'.$encoded;
+    }
+
+    /**
      * 编码字符串
      */
     private static function encodeString(string $input): string

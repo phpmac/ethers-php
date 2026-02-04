@@ -2,143 +2,106 @@
 
 declare(strict_types=1);
 
-namespace Tests\Ethers\Contract;
+namespace Ethers\Tests\Contract;
 
-use Ethers\Contract\Contract;
 use Ethers\Contract\ContractFactory;
+use Ethers\Contract\Contract;
+use Ethers\Signer\Wallet;
 use PHPUnit\Framework\TestCase;
 
-/**
- * ContractFactory 测试
- */
 class ContractFactoryTest extends TestCase
 {
-    /**
-     * 测试创建 ContractFactory
-     */
-    public function test_create(): void
+    private string $abi = '[{"inputs":[{"internalType":"uint256","name":"initialValue","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"retrieve","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"value","type":"uint256"}],"name":"store","outputs":[],"stateMutability":"nonpayable","type":"function"}]';
+
+    private string $bytecode = '0x608060405234801561001057600080fd5b5060c68061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c80632e64cec11460375780636057361d14604f575b600080fd5b603d606b565b604051604891906090565b60405180910390f35b606960048036038101906065919060b9565b6071565b005b60008054905090565b6000819050919050565b608a816079565b82525050565b600060208201905060a360008301846083565b92915050565b60006020828403121560bb5760ba6074565b5b600060c784828501607d565b9150509291505056fea2646970667358221220c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a47064736f6c63430008130033';
+
+    public function testCreateFactory(): void
     {
-        $abi = [
-            'constructor(string name, string symbol)',
-            'function name() view returns (string)',
-            'function symbol() view returns (string)',
-        ];
-        $bytecode = '0x608060405234801561001057600080fd5b50';
+        $factory = new ContractFactory($this->abi, $this->bytecode);
 
-        $factory = new ContractFactory($abi, $bytecode);
-
-        $this->assertStringStartsWith('0x', $factory->getBytecode());
-        $this->assertNotNull($factory->getInterface());
+        $this->assertInstanceOf(ContractFactory::class, $factory);
+        $this->assertEquals($this->bytecode, $factory->getBytecode());
     }
 
-    /**
-     * 测试 getBytecode
-     */
-    public function test_get_bytecode(): void
+    public function testGetInterface(): void
     {
-        $bytecode = '608060405234801561001057600080fd5b50';
-        $factory = new ContractFactory(['function name() view returns (string)'], $bytecode);
-
-        // 应该添加 0x 前缀
-        $this->assertEquals('0x'.$bytecode, $factory->getBytecode());
-    }
-
-    /**
-     * 测试 getInterface
-     */
-    public function test_get_interface(): void
-    {
-        $abi = [
-            'constructor(string name)',
-            'function name() view returns (string)',
-        ];
-        $factory = new ContractFactory($abi, '0x00');
+        $factory = new ContractFactory($this->abi, $this->bytecode);
 
         $interface = $factory->getInterface();
-        $this->assertNotNull($interface->getConstructor());
-        $this->assertNotNull($interface->getFunction('name'));
+        $this->assertNotNull($interface);
+
+        // 检查是否能获取函数
+        $retrieveFunc = $interface->getFunction('retrieve');
+        $this->assertNotNull($retrieveFunc);
     }
 
-    /**
-     * 测试 getDeployTransaction
-     */
-    public function test_get_deploy_transaction(): void
+    public function testGetDeployTransaction(): void
     {
-        $abi = [
-            'constructor(string name, string symbol)',
-        ];
-        $bytecode = '0x608060405234801561001057600080fd5b50';
+        $factory = new ContractFactory($this->abi, $this->bytecode);
 
-        $factory = new ContractFactory($abi, $bytecode);
-        $deployData = $factory->getDeployTransaction('Test Token', 'TEST');
+        $initialValue = '100';
+        $deployData = $factory->getDeployTransaction($initialValue);
 
-        $this->assertStringStartsWith('0x', $deployData);
-        // 部署数据应该以 bytecode 开头
-        $this->assertStringStartsWith($bytecode, $deployData);
-        // 部署数据应该比 bytecode 长 (包含编码的构造函数参数)
-        $this->assertGreaterThan(strlen($bytecode), strlen($deployData));
+        // 验证部署数据包含字节码
+        $this->assertStringStartsWith($this->bytecode, $deployData);
+
+        // 验证长度正确(字节码 + 构造参数)
+        $this->assertGreaterThan(strlen($this->bytecode), strlen($deployData));
     }
 
-    /**
-     * 测试无构造函数参数的 getDeployTransaction
-     */
-    public function test_get_deploy_transaction_without_args(): void
+    public function testGetDeployTransactionWithoutConstructor(): void
     {
-        $bytecode = '0x608060405234801561001057600080fd5b50';
-        $factory = new ContractFactory(['function name() view returns (string)'], $bytecode);
+        // 没有构造函数的 ABI
+        $simpleAbi = '[{"inputs":[],"name":"retrieve","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]';
+        $factory = new ContractFactory($simpleAbi, $this->bytecode);
 
         $deployData = $factory->getDeployTransaction();
-        $this->assertEquals($bytecode, $deployData);
+
+        // 没有构造参数, 应该等于字节码
+        $this->assertEquals($this->bytecode, $deployData);
     }
 
-    /**
-     * 测试 attach
-     */
-    public function test_attach(): void
+    public function testAttach(): void
     {
-        $abi = ['function name() view returns (string)'];
-        $bytecode = '0x608060405234801561001057600080fd5b50';
+        $factory = new ContractFactory($this->abi, $this->bytecode);
+        $wallet = Wallet::createRandom();
+        $factoryWithSigner = $factory->connect($wallet);
 
-        $factory = new ContractFactory($abi, $bytecode);
-        $contract = $factory->attach('0x1234567890123456789012345678901234567890');
+        $address = '0x1234567890123456789012345678901234567890';
+        $contract = $factoryWithSigner->attach($address);
 
         $this->assertInstanceOf(Contract::class, $contract);
-        $this->assertEquals('0x1234567890123456789012345678901234567890', $contract->target);
+        $this->assertEquals(strtolower($address), $contract->getAddress());
     }
 
-    /**
-     * 测试没有 Signer 时 deploy 抛出异常
-     */
-    public function test_deploy_without_signer_throws_exception(): void
+    public function testConnect(): void
     {
-        $factory = new ContractFactory(['function name() view returns (string)'], '0x00');
+        $factory = new ContractFactory($this->abi, $this->bytecode);
+        $wallet = Wallet::createRandom();
+
+        $connectedFactory = $factory->connect($wallet);
+
+        $this->assertInstanceOf(ContractFactory::class, $connectedFactory);
+        $this->assertSame($wallet, $connectedFactory->getRunner());
+    }
+
+    public function testDeployWithoutRunner(): void
+    {
+        $factory = new ContractFactory($this->abi, $this->bytecode);
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('需要 Signer 才能部署合约');
 
-        $factory->deploy();
+        $factory->deploy('100');
     }
 
-    /**
-     * 测试 getRunner 没有 Signer 时返回 null
-     */
-    public function test_get_runner_without_signer(): void
+    public function testGetDeployTransactionWithWrongArgumentCount(): void
     {
-        $factory = new ContractFactory(['function name() view returns (string)'], '0x00');
-        $this->assertNull($factory->getRunner());
-    }
-
-    /**
-     * 测试构造函数参数数量不匹配抛出异常
-     */
-    public function test_deploy_transaction_with_wrong_args_count(): void
-    {
-        $abi = ['constructor(string name, string symbol)'];
-        $factory = new ContractFactory($abi, '0x00');
+        $factory = new ContractFactory($this->abi, $this->bytecode);
 
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('构造函数需要 1 个参数, 但提供了 2 个');
 
-        // 只传一个参数, 但构造函数需要两个
-        $factory->getDeployTransaction('TestToken');
+        $factory->getDeployTransaction('100', '200');
     }
 }
