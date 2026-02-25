@@ -8,11 +8,10 @@ use Ethers\Utils\Keccak;
 use InvalidArgumentException;
 
 /**
- * Interface_
+ * Abi
  * 合约接口, 用于解析 ABI 和编码/解码数据
  *
  * 参考 ethers.js v6 的 Interface
- * 注: PHP 不允许使用 Interface 作为类名
  *
  * 支持两种 ABI 格式:
  * 1. JSON ABI (标准格式)
@@ -24,7 +23,7 @@ use InvalidArgumentException;
  * - "event Transfer(address indexed from, address indexed to, uint256 value)"
  * - "constructor(string name, string symbol)"
  */
-class Interface_
+class Abi
 {
     private array $abi;
 
@@ -67,7 +66,7 @@ class Interface_
     }
 
     /**
-     * 静态方法: 从人类可读 ABI 创建 Interface
+     * 静态方法: 从人类可读 ABI 创建 Abi
      *
      * @param  array  $fragments  人类可读 ABI 片段数组
      */

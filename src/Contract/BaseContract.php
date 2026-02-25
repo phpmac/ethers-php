@@ -31,7 +31,7 @@ class BaseContract
     /**
      * 合约接口
      */
-    public readonly Interface_ $interface;
+    public readonly Abi $interface;
 
     /**
      * Runner (Provider 或 Signer)
@@ -66,7 +66,7 @@ class BaseContract
         JsonRpcProvider|Wallet|null $runner = null
     ) {
         $this->target = strtolower($address);
-        $this->interface = new Interface_($abi);
+        $this->interface = new Abi($abi);
         $this->runner = $runner;
         $this->buildFunctions();
     }
@@ -92,7 +92,7 @@ class BaseContract
     /**
      * 获取接口
      */
-    public function getInterface(): Interface_
+    public function getInterface(): Abi
     {
         return $this->interface;
     }

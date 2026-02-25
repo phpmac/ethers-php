@@ -22,7 +22,7 @@ use RuntimeException;
  */
 class ContractFactory
 {
-    private Interface_ $interface;
+    private Abi $interface;
 
     private string $bytecode;
 
@@ -40,7 +40,7 @@ class ContractFactory
         string $bytecode,
         ?Wallet $runner = null
     ) {
-        $this->interface = new Interface_($abi);
+        $this->interface = new Abi($abi);
         $this->bytecode = Hex::prefix($bytecode);
         $this->runner = $runner;
     }
@@ -48,7 +48,7 @@ class ContractFactory
     /**
      * 获取接口
      */
-    public function getInterface(): Interface_
+    public function getInterface(): Abi
     {
         return $this->interface;
     }

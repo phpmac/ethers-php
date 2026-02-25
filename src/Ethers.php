@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Ethers;
 
+use Ethers\Constants\Addresses;
+use Ethers\Constants\Hashes;
+use Ethers\Constants\Numbers;
 use Ethers\Contract\AbiCoder;
 use Ethers\Contract\Contract;
 use Ethers\Contract\ContractFactory;
-use Ethers\Contract\Interface_;
+use Ethers\Contract\Abi;
 use Ethers\Provider\JsonRpcProvider;
 use Ethers\Signer\Wallet;
 use Ethers\Transaction\RLP;
@@ -44,6 +47,24 @@ use Ethers\Utils\Units;
  */
 class Ethers
 {
+    // ==================== 常量 (引用常量类,对齐 ethers.js v6) ====================
+
+    public const ZeroAddress = Addresses::ZeroAddress;
+
+    public const ZeroHash = Hashes::ZeroHash;
+
+    public const MaxUint256 = Numbers::MaxUint256;
+
+    public const MaxInt256 = Numbers::MaxInt256;
+
+    public const MinInt256 = Numbers::MinInt256;
+
+    public const WeiPerEther = Numbers::WeiPerEther;
+
+    public const N = Numbers::N;
+
+    // ==================== 工厂方法 ====================
+
     /**
      * 创建 JsonRpcProvider
      */
@@ -71,9 +92,9 @@ class Ethers
     /**
      * 创建 Interface
      */
-    public static function interface(array|string $abi): Interface_
+    public static function interface(array|string $abi): Abi
     {
-        return new Interface_($abi);
+        return new Abi($abi);
     }
 
     /**
@@ -109,9 +130,9 @@ class Ethers
      *
      * @param  array  $fragments  人类可读 ABI 片段
      */
-    public static function parseAbi(array $fragments): Interface_
+    public static function parseAbi(array $fragments): Abi
     {
-        return Interface_::from($fragments);
+        return Abi::from($fragments);
     }
 
     // ==================== 工具方法 ====================
@@ -235,22 +256,6 @@ class Ethers
         $address = '0x'.substr($hash, -40);
 
         return self::getAddress($address);
-    }
-
-    /**
-     * 零地址
-     */
-    public static function zeroAddress(): string
-    {
-        return '0x0000000000000000000000000000000000000000';
-    }
-
-    /**
-     * 零哈希
-     */
-    public static function zeroHash(): string
-    {
-        return '0x0000000000000000000000000000000000000000000000000000000000000000';
     }
 
     /**

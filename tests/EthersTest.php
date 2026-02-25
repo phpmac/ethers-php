@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Ethers\Tests;
 
 use Ethers\Contract\ContractFactory;
-use Ethers\Contract\Interface_;
+use Ethers\Contract\Abi;
 use Ethers\Ethers;
 use PHPUnit\Framework\TestCase;
 
@@ -78,8 +78,8 @@ class EthersTest extends TestCase
      */
     public function test_constants(): void
     {
-        $this->assertEquals('0x0000000000000000000000000000000000000000', Ethers::zeroAddress());
-        $this->assertEquals('0x0000000000000000000000000000000000000000000000000000000000000000', Ethers::zeroHash());
+        $this->assertEquals('0x0000000000000000000000000000000000000000', Ethers::ZeroAddress);
+        $this->assertEquals('0x0000000000000000000000000000000000000000000000000000000000000000', Ethers::ZeroHash);
     }
 
     /**
@@ -147,7 +147,7 @@ class EthersTest extends TestCase
             'function transfer(address to, uint256 amount) returns (bool)',
         ]);
 
-        $this->assertInstanceOf(Interface_::class, $interface);
+        $this->assertInstanceOf(Abi::class, $interface);
         $this->assertNotNull($interface->getFunction('transfer'));
     }
 
@@ -166,7 +166,7 @@ class EthersTest extends TestCase
             ],
         ]);
 
-        $this->assertInstanceOf(Interface_::class, $interface);
+        $this->assertInstanceOf(Abi::class, $interface);
     }
 
     /**
