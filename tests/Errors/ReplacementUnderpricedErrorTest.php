@@ -12,18 +12,14 @@ use PHPUnit\Framework\TestCase;
  */
 class ReplacementUnderpricedErrorTest extends TestCase
 {
-    /**
-     */
     public function test_it_should_have_correct_error_code(): void
     {
-        $error = new ReplacementUnderpricedError();
+        $error = new ReplacementUnderpricedError;
 
         $this->assertSame('REPLACEMENT_UNDERPRICED', $error->code);
         $this->assertSame('REPLACEMENT_UNDERPRICED', ReplacementUnderpricedError::CODE);
     }
 
-    /**
-     */
     public function test_it_should_store_gas_prices(): void
     {
         $error = new ReplacementUnderpricedError(
@@ -36,8 +32,6 @@ class ReplacementUnderpricedErrorTest extends TestCase
         $this->assertSame('22000000000', $error->requiredGasPrice);
     }
 
-    /**
-     */
     public function test_it_should_create_from_rpc_error(): void
     {
         $error = ReplacementUnderpricedError::fromRpcError(
@@ -52,8 +46,6 @@ class ReplacementUnderpricedErrorTest extends TestCase
         $this->assertSame(-32000, $error->info['rpcCode']);
     }
 
-    /**
-     */
     public function test_it_should_convert_to_array(): void
     {
         $error = new ReplacementUnderpricedError(

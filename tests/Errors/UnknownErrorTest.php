@@ -12,18 +12,14 @@ use PHPUnit\Framework\TestCase;
  */
 class UnknownErrorTest extends TestCase
 {
-    /**
-     */
     public function test_it_should_have_correct_error_code(): void
     {
-        $error = new UnknownError();
+        $error = new UnknownError;
 
         $this->assertSame('UNKNOWN_ERROR', $error->code);
         $this->assertSame('UNKNOWN_ERROR', UnknownError::CODE);
     }
 
-    /**
-     */
     public function test_it_should_store_original_error(): void
     {
         $error = new UnknownError('message', 'original error info');
@@ -31,8 +27,6 @@ class UnknownErrorTest extends TestCase
         $this->assertSame('original error info', $error->originalError);
     }
 
-    /**
-     */
     public function test_it_should_create_from_exception(): void
     {
         $cause = new \Exception('原始异常', 123);
@@ -45,18 +39,14 @@ class UnknownErrorTest extends TestCase
         $this->assertArrayHasKey('trace', $error->info);
     }
 
-    /**
-     */
     public function test_it_should_have_default_message(): void
     {
-        $error = new UnknownError();
+        $error = new UnknownError;
 
         $this->assertSame('未知错误', $error->getMessage());
         $this->assertSame('未知错误', $error->shortMessage);
     }
 
-    /**
-     */
     public function test_it_should_convert_to_array(): void
     {
         $error = new UnknownError('custom message', 'original');

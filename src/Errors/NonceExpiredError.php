@@ -56,12 +56,9 @@ class NonceExpiredError extends EthersException
     ): self {
         // 映射 RPC 错误到友好消息 (仅限 nonce 相关)
         $friendlyMessage = match (true) {
-            str_contains($rpcMessage, 'nonce too low') =>
-                'nonce has already been used',
-            str_contains($rpcMessage, 'nonce too high') =>
-                'nonce too high',
-            str_contains($rpcMessage, 'invalid nonce') =>
-                'invalid nonce',
+            str_contains($rpcMessage, 'nonce too low') => 'nonce has already been used',
+            str_contains($rpcMessage, 'nonce too high') => 'nonce too high',
+            str_contains($rpcMessage, 'invalid nonce') => 'invalid nonce',
             default => $rpcMessage,
         };
 

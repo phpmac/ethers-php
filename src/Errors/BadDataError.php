@@ -57,7 +57,7 @@ class BadDataError extends EthersException
     {
         $message = '数据解码失败';
         if ($reason) {
-            $message .= ': ' . $reason;
+            $message .= ': '.$reason;
         }
 
         return new self($message, $data);
@@ -70,7 +70,7 @@ class BadDataError extends EthersException
     {
         $message = '数据编码失败';
         if ($reason) {
-            $message .= ': ' . $reason;
+            $message .= ': '.$reason;
         }
 
         return new self($message, $data);

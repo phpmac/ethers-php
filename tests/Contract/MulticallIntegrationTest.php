@@ -57,7 +57,6 @@ class MulticallIntegrationTest extends TestCase
             ['method' => 'totalSupply', 'args' => []],
         ]);
 
-
         // 验证返回结果
         $this->assertCount(4, $results);
 

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ethers\Tests\Contract;
 
-use Ethers\Contract\ContractFactory;
 use Ethers\Contract\Contract;
+use Ethers\Contract\ContractFactory;
 use Ethers\Signer\Wallet;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ class ContractFactoryTest extends TestCase
 
     private string $bytecode = '0x608060405234801561001057600080fd5b5060c68061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c80632e64cec11460375780636057361d14604f575b600080fd5b603d606b565b604051604891906090565b60405180910390f35b606960048036038101906065919060b9565b6071565b005b60008054905090565b6000819050919050565b608a816079565b82525050565b600060208201905060a360008301846083565b92915050565b60006020828403121560bb5760ba6074565b5b600060c784828501607d565b9150509291505056fea2646970667358221220c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a47064736f6c63430008130033';
 
-    public function testCreateFactory(): void
+    public function test_create_factory(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
 
@@ -23,7 +23,7 @@ class ContractFactoryTest extends TestCase
         $this->assertEquals($this->bytecode, $factory->getBytecode());
     }
 
-    public function testGetInterface(): void
+    public function test_get_interface(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
 
@@ -35,7 +35,7 @@ class ContractFactoryTest extends TestCase
         $this->assertNotNull($retrieveFunc);
     }
 
-    public function testGetDeployTransaction(): void
+    public function test_get_deploy_transaction(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
 
@@ -49,7 +49,7 @@ class ContractFactoryTest extends TestCase
         $this->assertGreaterThan(strlen($this->bytecode), strlen($deployData));
     }
 
-    public function testGetDeployTransactionWithoutConstructor(): void
+    public function test_get_deploy_transaction_without_constructor(): void
     {
         // 没有构造函数的 ABI
         $simpleAbi = '[{"inputs":[],"name":"retrieve","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]';
@@ -61,7 +61,7 @@ class ContractFactoryTest extends TestCase
         $this->assertEquals($this->bytecode, $deployData);
     }
 
-    public function testAttach(): void
+    public function test_attach(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
         $wallet = Wallet::createRandom();
@@ -74,7 +74,7 @@ class ContractFactoryTest extends TestCase
         $this->assertEquals(strtolower($address), $contract->getAddress());
     }
 
-    public function testConnect(): void
+    public function test_connect(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
         $wallet = Wallet::createRandom();
@@ -85,7 +85,7 @@ class ContractFactoryTest extends TestCase
         $this->assertSame($wallet, $connectedFactory->getRunner());
     }
 
-    public function testDeployWithoutRunner(): void
+    public function test_deploy_without_runner(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
 
@@ -95,7 +95,7 @@ class ContractFactoryTest extends TestCase
         $factory->deploy('100');
     }
 
-    public function testGetDeployTransactionWithWrongArgumentCount(): void
+    public function test_get_deploy_transaction_with_wrong_argument_count(): void
     {
         $factory = new ContractFactory($this->abi, $this->bytecode);
 

@@ -90,11 +90,41 @@ $lastOrderId = $contract->getFunction('lastOrderId')->staticCall([]);
 
 ## 版本发布
 
-遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范:
+遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范.
+
+### <workflow>开发流程</workflow>
+
+<workflow>
+1. 基于最新正式版本创建开发分支（如 feature/xxx 基于 v1.2.0）
+2. 在开发分支上进行修改
+3. 运行测试确保通过
+4. 推送分支并创建 PR
+5. 使用 CodeReview 进行代码检查
+6. 合并到 main 分支后，发布新版本（创建 git tag）
+</workflow>
+
+**禁止在 main 分支直接开发或推送代码！**
 
 ```bash
-# 创建新版本标签
-git tag -a v1.0.0 -m "发布 v1.0.0"
-git push origin v1.0.0
+# 1. 创建开发分支（基于最新正式版本）
+git checkout -b feature/xxx v1.2.0
+
+# 2. 开发完成后，推送分支
+git push -u origin feature/xxx
+
+# 3. 创建 PR
+gh pr create --title "描述" --body "描述内容"
+
+# 4. CodeReview 检查
+/code-review
+
+# 5. 合并后发布版本
+git tag -a v1.3.0 -m "发布 v1.3.0"
+git push origin v1.3.0
+
+# 6. 合并到 main
+git checkout main
+git merge feature/xxx
+git push origin main
 ```
 

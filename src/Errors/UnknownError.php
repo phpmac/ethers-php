@@ -44,7 +44,7 @@ class UnknownError extends EthersException
     {
         return new self(
             $e->getMessage(),
-            $e::class . ': ' . $e->getMessage(),
+            $e::class.': '.$e->getMessage(),
             [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),

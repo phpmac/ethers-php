@@ -2,11 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use Ethers\Contract\Contract;
-use Ethers\Signer\Wallet;
-use Ethers\Provider\JsonRpcProvider;
+require_once __DIR__.'/../vendor/autoload.php';
 
 echo "=== 代理合约升级演示(UUPS 模式) ===\n\n";
 
