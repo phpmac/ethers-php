@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Ethers\Contract;
 
-use Ethers\Contract\Interface_;
+use Ethers\Contract\Abi;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -46,7 +46,7 @@ class InterfaceTest extends TestCase
             ],
         ];
 
-        $interface = new Interface_($abi);
+        $interface = new Abi($abi);
 
         // 获取函数
         $balanceOf = $interface->getFunction('balanceOf');
@@ -75,7 +75,7 @@ class InterfaceTest extends TestCase
             'constructor(string name, string symbol)',
         ];
 
-        $interface = new Interface_($fragments);
+        $interface = new Abi($fragments);
 
         // 测试函数解析
         $name = $interface->getFunction('name');
@@ -118,7 +118,7 @@ class InterfaceTest extends TestCase
      */
     public function test_encode_function_data(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function transfer(address to, uint256 amount) returns (bool)',
         ]);
 
@@ -135,7 +135,7 @@ class InterfaceTest extends TestCase
      */
     public function test_decode_function_data(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function transfer(address to, uint256 amount) returns (bool)',
         ]);
 
@@ -156,7 +156,7 @@ class InterfaceTest extends TestCase
      */
     public function test_encode_deploy(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'constructor(string name, uint256 amount)',
         ]);
 
@@ -169,7 +169,7 @@ class InterfaceTest extends TestCase
      */
     public function test_get_function_by_selector(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function transfer(address to, uint256 amount) returns (bool)',
         ]);
 
@@ -196,7 +196,7 @@ class InterfaceTest extends TestCase
             ],
         ];
 
-        $interface = new Interface_($abi);
+        $interface = new Abi($abi);
         $formatted = $interface->format('minimal');
 
         $this->assertIsArray($formatted);
@@ -215,7 +215,7 @@ class InterfaceTest extends TestCase
             'error InsufficientLiquidity()',
         ];
 
-        $interface = new Interface_($fragments);
+        $interface = new Abi($fragments);
 
         // 测试 swap 函数
         $swap = $interface->getFunction('swap');
@@ -239,7 +239,7 @@ class InterfaceTest extends TestCase
      */
     public function test_payable_function(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function deposit() payable',
             'function withdraw(uint256 amount)',
         ]);
@@ -256,11 +256,11 @@ class InterfaceTest extends TestCase
      */
     public function test_static_from(): void
     {
-        $interface = Interface_::from([
+        $interface = Abi::from([
             'function transfer(address to, uint256 amount) returns (bool)',
         ]);
 
-        $this->assertInstanceOf(Interface_::class, $interface);
+        $this->assertInstanceOf(Abi::class, $interface);
         $this->assertNotNull($interface->getFunction('transfer'));
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Ethers\Contract;
 
-use Ethers\Contract\Interface_;
+use Ethers\Contract\Abi;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,7 +18,7 @@ class DecodeFunctionResultTest extends TestCase
      */
     public function test_single_uint256_return_value(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function pendingReinvestHead() external view returns (uint256)',
         ]);
 
@@ -41,7 +41,7 @@ class DecodeFunctionResultTest extends TestCase
      */
     public function test_multiple_return_values(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function processExpiredBonuses(uint256 count) external returns (uint256 processed, uint256 expiredAmount)',
         ]);
 
@@ -70,7 +70,7 @@ class DecodeFunctionResultTest extends TestCase
      */
     public function test_single_named_return_value(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function balanceOf(address owner) view returns (uint256 balance)',
         ]);
 
@@ -93,7 +93,7 @@ class DecodeFunctionResultTest extends TestCase
      */
     public function test_string_return_value(): void
     {
-        $interface = new Interface_([
+        $interface = new Abi([
             'function name() view returns (string)',
         ]);
 
