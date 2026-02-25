@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 class TransactionReplacedErrorTest extends TestCase
 {
-    /**
-     */
     public function test_it_should_have_correct_error_code(): void
     {
         $error = new TransactionReplacedError(
@@ -26,8 +24,6 @@ class TransactionReplacedErrorTest extends TestCase
         $this->assertSame('TRANSACTION_REPLACED', TransactionReplacedError::CODE);
     }
 
-    /**
-     */
     public function test_it_should_store_transaction_hashes(): void
     {
         $error = new TransactionReplacedError(
@@ -40,8 +36,6 @@ class TransactionReplacedErrorTest extends TestCase
         $this->assertSame('0xreplaced...', $error->replacedHash);
     }
 
-    /**
-     */
     public function test_it_should_have_different_messages_for_different_reasons(): void
     {
         $cancelled = new TransactionReplacedError('0x1', '0x2', 'cancelled');
@@ -53,8 +47,6 @@ class TransactionReplacedErrorTest extends TestCase
         $this->assertSame('交易被重新定价', $repriced->shortMessage);
     }
 
-    /**
-     */
     public function test_it_should_include_info_in_array(): void
     {
         $error = new TransactionReplacedError(

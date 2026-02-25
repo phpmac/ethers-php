@@ -16,8 +16,6 @@ use PHPUnit\Framework\TestCase;
  */
 class ErrorFactoryTest extends TestCase
 {
-    /**
-     */
     public function test_it_should_create_replacement_underpriced_error(): void
     {
         $exception = ErrorFactory::fromRpcError(
@@ -31,8 +29,6 @@ class ErrorFactoryTest extends TestCase
         $this->assertSame('replacement transaction underpriced', $exception->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_create_nonce_expired_error_for_nonce_too_low(): void
     {
         $exception = ErrorFactory::fromRpcError(
@@ -46,8 +42,6 @@ class ErrorFactoryTest extends TestCase
         $this->assertSame('nonce has already been used', $exception->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_create_nonce_expired_error_for_nonce_too_high(): void
     {
         $exception = ErrorFactory::fromRpcError(
@@ -61,8 +55,6 @@ class ErrorFactoryTest extends TestCase
         $this->assertSame('nonce too high', $exception->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_create_insufficient_funds_error(): void
     {
         $exception = ErrorFactory::fromRpcError(
@@ -76,8 +68,6 @@ class ErrorFactoryTest extends TestCase
         $this->assertSame('insufficient funds', $exception->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_create_server_error_for_unknown_rpc_error(): void
     {
         $exception = ErrorFactory::fromRpcError(
@@ -90,8 +80,6 @@ class ErrorFactoryTest extends TestCase
         $this->assertSame('SERVER_ERROR', $exception->code);
     }
 
-    /**
-     */
     public function test_it_should_handle_case_insensitive_rpc_messages(): void
     {
         $exception = ErrorFactory::fromRpcError(

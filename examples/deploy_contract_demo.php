@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use Ethers\Contract\ContractFactory;
-use Ethers\Signer\Wallet;
 use Ethers\Provider\JsonRpcProvider;
+use Ethers\Signer\Wallet;
 
 echo "=== Anvil 本地网络合约部署与读写测试 ===\n\n";
 
@@ -15,9 +15,9 @@ echo "--- 连接到 Anvil 本地网络 ---\n";
 
 try {
     $provider = new JsonRpcProvider('http://127.0.0.1:8545');
-    echo "已连接到 Anvil 本地网络 (Chain ID: " . $provider->getChainId() . ")\n\n";
+    echo '已连接到 Anvil 本地网络 (Chain ID: '.$provider->getChainId().")\n\n";
 } catch (\Throwable $e) {
-    echo "连接失败: " . $e->getMessage() . "\n";
+    echo '连接失败: '.$e->getMessage()."\n";
     echo "请先启动 Anvil: anvil --port 8545\n";
     exit(1);
 }
@@ -28,7 +28,7 @@ $wallet = new Wallet($testPrivateKey);
 $walletWithProvider = $wallet->connect($provider);
 
 echo "钱包地址: {$wallet->getAddress()}\n";
-echo "钱包余额: " . bcdiv($walletWithProvider->getBalance(), bcpow('10', '18'), 4) . " ETH\n\n";
+echo '钱包余额: '.bcdiv($walletWithProvider->getBalance(), bcpow('10', '18'), 4)." ETH\n\n";
 
 // ========== Counter 合约 ==========
 // 合约源码来自 /Users/a/Downloads/foundry/src/Counter.sol
@@ -52,7 +52,7 @@ $bytecode = '0x6080604052348015600e575f5ffd5b506101e18061001c5f395ff3fe608060405
 
 // ========== 部署合约 ==========
 echo "--- 部署 Counter 合约 ---\n";
-echo "合约字节码长度: " . strlen($bytecode) . " 字符\n";
+echo '合约字节码长度: '.strlen($bytecode)." 字符\n";
 
 $factory = new ContractFactory($abi, $bytecode);
 $factoryWithSigner = $factory->connect($walletWithProvider);
@@ -61,8 +61,8 @@ try {
     $contract = $factoryWithSigner->deploy();
 
     echo "\n合约部署成功!\n";
-    echo "  合约地址: " . $contract->getAddress() . "\n";
-    echo "  交易哈希: " . $contract->deploymentTransaction()['hash'] . "\n\n";
+    echo '  合约地址: '.$contract->getAddress()."\n";
+    echo '  交易哈希: '.$contract->deploymentTransaction()['hash']."\n\n";
 
     // ========== 测试读取 ==========
     echo "--- 测试合约方法 ---\n\n";
@@ -76,11 +76,11 @@ try {
     echo "2. 写入新值 {$newValue}:\n";
 
     $tx = $contract->send('setNumber', [$newValue]);
-    echo "   交易哈希: " . $tx['hash'] . "\n";
+    echo '   交易哈希: '.$tx['hash']."\n";
     echo "   等待确认...\n";
 
     $receipt = $tx['wait']();
-    echo "   交易已确认 (区块: " . $receipt['blockNumber'] . ")\n\n";
+    echo '   交易已确认 (区块: '.$receipt['blockNumber'].")\n\n";
 
     // ========== 验证写入 ==========
     echo "3. 验证新值:\n";
@@ -111,12 +111,12 @@ try {
 
     echo "=== 所有测试通过! ===\n";
     echo "\n合约已成功部署并测试完成:\n";
-    echo "  - 部署地址: " . $contract->getAddress() . "\n";
+    echo '  - 部署地址: '.$contract->getAddress()."\n";
     echo "  - 读取测试: 通过\n";
     echo "  - 写入测试: 通过\n";
     echo "  - increment 测试: 通过\n";
 
 } catch (\Throwable $e) {
-    echo "\n部署或测试失败: " . $e->getMessage() . "\n";
+    echo "\n部署或测试失败: ".$e->getMessage()."\n";
     echo "\n提示: 确保 Anvil 节点已启动并且有足够的测试 ETH\n";
 }

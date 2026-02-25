@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use Ethers\Contract\Contract;
 use Ethers\Provider\JsonRpcProvider;
@@ -37,9 +37,9 @@ $calls = [
     ['method' => 'totalSupply', 'args' => []],
 ];
 
-echo "准备批量调用 (共 " . count($calls) . " 个请求):\n";
+echo '准备批量调用 (共 '.count($calls)." 个请求):\n";
 foreach ($calls as $i => $call) {
-    echo "  " . ($i + 1) . ". {$call['method']}()\n";
+    echo '  '.($i + 1).". {$call['method']}()\n";
 }
 echo "\n";
 
@@ -59,9 +59,9 @@ echo "=== 返回结果 ===\n";
 echo "Name:        {$results[0][0]}\n";
 echo "Symbol:      {$results[1][0]}\n";
 echo "Decimals:    {$results[2][0]}\n";
-echo "TotalSupply: " . Units::formatUnits($results[3][0], (int) $results[2][0]) . "\n";
+echo 'TotalSupply: '.Units::formatUnits($results[3][0], (int) $results[2][0])."\n";
 
 echo "\n=== 特点说明 ===\n";
 echo "1. 一次 HTTP 请求获取所有数据\n";
 echo "2. 返回顺序与请求顺序一致\n";
-echo "3. 相比串行请求, 速度提升 " . round(count($calls) * 0.7, 1) . "x\n";
+echo '3. 相比串行请求, 速度提升 '.round(count($calls) * 0.7, 1)."x\n";

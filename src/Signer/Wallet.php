@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ethers\Signer;
 
 use Elliptic\EC;
-use Ethers\Errors\CancelledError;
 use Ethers\Provider\JsonRpcProvider;
 use Ethers\Transaction\Transaction;
 use Ethers\Utils\Hex;
@@ -279,9 +278,10 @@ class Wallet
      *
      * 原理: 用相同的 nonce 发送一个 0 ETH 给自己的交易，覆盖原交易
      *
-     * @param string $txHash 要取消的交易哈希
-     * @param float $gasPriceBump gas 价格提升比例 (默认 10%)
+     * @param  string  $txHash  要取消的交易哈希
+     * @param  float  $gasPriceBump  gas 价格提升比例 (默认 10%)
      * @return array{hash: string, wait: callable} 取消交易的响应
+     *
      * @throws RuntimeException
      */
     public function cancelTransaction(string $txHash, float $gasPriceBump = 0.1): array

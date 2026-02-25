@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
-use Ethers\Signer\Wallet;
 use Ethers\Provider\JsonRpcProvider;
+use Ethers\Signer\Wallet;
 
 echo "=== 钱包账户操作演示 ===\n\n";
 
@@ -31,7 +31,7 @@ $wallet2 = new Wallet($privateKey);
 echo "从私钥恢复账户成功!\n";
 echo "  原地址:  {$wallet1->getAddress()}\n";
 echo "  恢复地址: {$wallet2->getAddress()}\n";
-echo "  地址匹配: " . ($wallet1->getAddress() === $wallet2->getAddress() ? '是' : '否') . "\n";
+echo '  地址匹配: '.($wallet1->getAddress() === $wallet2->getAddress() ? '是' : '否')."\n";
 echo "\n";
 
 // ========== 示例3: 创建多个账户 ==========
@@ -44,7 +44,7 @@ for ($i = 0; $i < 3; $i++) {
         'address' => $wallet->getAddress(),
         'privateKey' => $wallet->getPrivateKey(),
     ];
-    echo "  账户 " . ($i + 1) . ": {$wallet->getAddress()}\n";
+    echo '  账户 '.($i + 1).": {$wallet->getAddress()}\n";
 }
 echo "\n";
 
@@ -62,7 +62,6 @@ try {
     $balance = $walletWithProvider->getBalance();
     echo "  余额: {$balance} wei\n";
 } catch (\Throwable $e) {
-    echo "查询失败: " . $e->getMessage() . "\n";
+    echo '查询失败: '.$e->getMessage()."\n";
 }
 echo "\n";
-

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../vendor/autoload.php';
 
 use Ethers\Contract\Contract;
 use Ethers\Provider\JsonRpcProvider;
@@ -42,18 +42,18 @@ try {
     // 使用 staticCall 模拟转账 (不会真正执行)
     $result = $usdt->staticCall('transfer', ['0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', $amount]);
 
-    echo "模拟结果: " . ($result[0] ? '成功' : '失败') . "\n";
+    echo '模拟结果: '.($result[0] ? '成功' : '失败')."\n";
 } catch (\Ethers\Errors\CallExceptionError $e) {
     echo "捕获到合约错误!\n";
-    echo "  错误类型: " . $e::class . "\n";
-    echo "  错误代码: " . $e->code . "\n";
-    echo "  错误信息: " . $e->getMessage() . "\n";
+    echo '  错误类型: '.$e::class."\n";
+    echo '  错误代码: '.$e->code."\n";
+    echo '  错误信息: '.$e->getMessage()."\n";
 
     if ($e->data) {
-        echo "  错误数据: " . $e->data . "\n";
+        echo '  错误数据: '.$e->data."\n";
     }
 } catch (\Throwable $e) {
-    echo "其他错误: " . $e->getMessage() . "\n";
+    echo '其他错误: '.$e->getMessage()."\n";
 }
 
 echo "\n";
@@ -63,14 +63,14 @@ echo "--- 示例2: 调用不存在的方法 (预期失败) ---\n";
 
 try {
     $result = $usdt->staticCall('nonExistentMethod', []);
-    echo "结果: " . print_r($result, true) . "\n";
+    echo '结果: '.print_r($result, true)."\n";
 } catch (\Ethers\Errors\CallExceptionError $e) {
     echo "捕获到合约错误!\n";
-    echo "  错误信息: " . $e->getMessage() . "\n";
+    echo '  错误信息: '.$e->getMessage()."\n";
 } catch (\InvalidArgumentException $e) {
-    echo "参数错误: " . $e->getMessage() . "\n";
+    echo '参数错误: '.$e->getMessage()."\n";
 } catch (\Throwable $e) {
-    echo "其他错误: " . $e->getMessage() . "\n";
+    echo '其他错误: '.$e->getMessage()."\n";
 }
 
 echo "\n";
@@ -89,7 +89,7 @@ try {
     echo "代币符号: {$symbol}\n";
     echo "小数位数: {$decimals}\n";
 } catch (\Throwable $e) {
-    echo "错误: " . $e->getMessage() . "\n";
+    echo '错误: '.$e->getMessage()."\n";
 }
 
 echo "\n=== 特点说明 ===\n";

@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
  */
 class InvalidArgumentErrorTest extends TestCase
 {
-    /**
-     */
     public function test_it_should_have_correct_error_code(): void
     {
         $error = new InvalidArgumentError('test');
@@ -22,8 +20,6 @@ class InvalidArgumentErrorTest extends TestCase
         $this->assertSame('INVALID_ARGUMENT', InvalidArgumentError::CODE);
     }
 
-    /**
-     */
     public function test_it_should_store_argument_and_value(): void
     {
         $error = new InvalidArgumentError('test', 'gasPrice', 'invalid');
@@ -32,8 +28,6 @@ class InvalidArgumentErrorTest extends TestCase
         $this->assertSame('invalid', $error->value);
     }
 
-    /**
-     */
     public function test_it_should_create_for_argument_with_expected_type(): void
     {
         $error = InvalidArgumentError::forArgument('gasPrice', 'invalid', 'number or hex string');
@@ -43,8 +37,6 @@ class InvalidArgumentErrorTest extends TestCase
         $this->assertSame('invalid', $error->value);
     }
 
-    /**
-     */
     public function test_it_should_create_for_argument_without_expected_type(): void
     {
         $error = InvalidArgumentError::forArgument('to', null);
@@ -52,8 +44,6 @@ class InvalidArgumentErrorTest extends TestCase
         $this->assertSame("参数 'to' 无效", $error->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_include_argument_in_info(): void
     {
         $error = new InvalidArgumentError('test', 'address', '0xinvalid');

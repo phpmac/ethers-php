@@ -12,18 +12,14 @@ use PHPUnit\Framework\TestCase;
  */
 class NonceExpiredErrorTest extends TestCase
 {
-    /**
-     */
     public function test_it_should_have_correct_error_code(): void
     {
-        $error = new NonceExpiredError();
+        $error = new NonceExpiredError;
 
         $this->assertSame('NONCE_EXPIRED', $error->code);
         $this->assertSame('NONCE_EXPIRED', NonceExpiredError::CODE);
     }
 
-    /**
-     */
     public function test_it_should_create_from_rpc_error_with_nonce_too_low(): void
     {
         $error = NonceExpiredError::fromRpcError(
@@ -36,8 +32,6 @@ class NonceExpiredErrorTest extends TestCase
         $this->assertSame('NONCE_EXPIRED', $error->code);
     }
 
-    /**
-     */
     public function test_it_should_create_from_rpc_error_with_nonce_too_high(): void
     {
         $error = NonceExpiredError::fromRpcError(
@@ -49,8 +43,6 @@ class NonceExpiredErrorTest extends TestCase
         $this->assertSame('nonce too high', $error->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_create_from_rpc_error_with_invalid_nonce(): void
     {
         $error = NonceExpiredError::fromRpcError(
@@ -62,8 +54,6 @@ class NonceExpiredErrorTest extends TestCase
         $this->assertSame('invalid nonce', $error->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_not_handle_replacement_underpriced(): void
     {
         // replacement transaction underpriced 不应该由 NonceExpiredError 处理
@@ -77,8 +67,6 @@ class NonceExpiredErrorTest extends TestCase
         $this->assertSame('replacement transaction underpriced', $error->getMessage());
     }
 
-    /**
-     */
     public function test_it_should_store_transaction_info(): void
     {
         $transaction = ['nonce' => 10, 'from' => '0xabc...'];

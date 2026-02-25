@@ -15,10 +15,9 @@ class ErrorFactory
     /**
      * 从 RPC 错误创建对应的异常
      *
-     * @param int $rpcCode RPC 错误码
-     * @param string $rpcMessage RPC 错误消息
-     * @param array|null $transaction 交易信息
-     * @return EthersException
+     * @param  int  $rpcCode  RPC 错误码
+     * @param  string  $rpcMessage  RPC 错误消息
+     * @param  array|null  $transaction  交易信息
      */
     public static function fromRpcError(
         int $rpcCode,
