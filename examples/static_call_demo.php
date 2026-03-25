@@ -1,5 +1,7 @@
 <?php
 
+// php -f examples/static_call_demo.php
+
 declare(strict_types=1);
 
 require_once __DIR__.'/../vendor/autoload.php';
@@ -95,5 +97,5 @@ try {
 echo "\n=== 特点说明 ===\n";
 echo "1. staticCall 不会发送真实交易, 只模拟执行\n";
 echo "2. 可以捕获合约 revert 错误, 避免 gas 浪费\n";
-echo "3. 适用于转账前检查、参数验证等场景\n";
+echo "3. Suitable for pre-transfer checks, parameter validation, etc.\n";
 echo "4. 错误信息包含 revert 原因, 便于调试\n";

@@ -63,7 +63,7 @@ class NonceExpiredErrorTest extends TestCase
             null
         );
 
-        // 应该返回原始消息，而不是映射为 "nonce has already been used"
+        // should return original message, instead of mapping to "nonce has already been used"
         $this->assertSame('replacement transaction underpriced', $error->getMessage());
     }
 

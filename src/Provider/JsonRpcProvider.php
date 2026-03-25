@@ -115,12 +115,12 @@ class JsonRpcProvider
     }
 
     /**
-     * 发送 JSON-RPC 批量请求 (一次网络请求多个调用)
+     * Send JSON-RPC batch requests (multiple calls in one network request)
      *
-     * **重要**: 此方法使用 JSON-RPC 2.0 批量请求特性，将多个 RPC 调用合并为一次 HTTP 请求
+     * **Important**: This method uses JSON-RPC 2.0 batch request feature to merge multiple RPC calls into one HTTP request
      *
-     * @param  array<int, array{method: string, params: array, context?: array}>  $requests  请求数组
-     * @return array<int, mixed> 返回结果数组 (顺序与请求一致)
+     * @param  array<int, array{method: string, params: array, context?: array}>  $requests  Request array
+     * @return array<int, mixed> Result array (order matches request order)
      *
      * @throws NetworkError
      * @throws ServerError

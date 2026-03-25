@@ -52,7 +52,7 @@ class InvalidArgumentError extends EthersException
     {
         $message = "参数 '{$argument}' 无效";
         if ($expected) {
-            $message .= "，期望: {$expected}";
+            $message .= ", expected: {$expected}";
         }
 
         return new self($message, $argument, $value);

@@ -1,5 +1,7 @@
 <?php
 
+// php -f examples/wallet_demo.php
+
 declare(strict_types=1);
 
 require_once __DIR__.'/../vendor/autoload.php';

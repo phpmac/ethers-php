@@ -64,7 +64,7 @@ class Contract extends BaseContract
     /**
      * 批量调用只读方法
      *
-     * **重要**: 此方法使用 JSON-RPC 2.0 批量请求特性，将所有调用合并为一次 HTTP 请求
+     * **Important**: This method uses JSON-RPC 2.0 batch request feature to merge all calls into one HTTP request
      *
      * @param  array  $calls  调用数组, 每个元素为 ['method' => string, 'args' => array]
      * @return array 返回值数组 (顺序与请求一致)

@@ -32,7 +32,7 @@ class InvalidArgumentErrorTest extends TestCase
     {
         $error = InvalidArgumentError::forArgument('gasPrice', 'invalid', 'number or hex string');
 
-        $this->assertSame("参数 'gasPrice' 无效，期望: number or hex string", $error->getMessage());
+        $this->assertSame("参数 'gasPrice' 无效, expected: number or hex string", $error->getMessage());
         $this->assertSame('gasPrice', $error->argument);
         $this->assertSame('invalid', $error->value);
     }

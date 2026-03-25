@@ -36,7 +36,7 @@ class MulticallIntegrationTest extends TestCase
      * @test
      *
      * 使用 JSON-RPC 批量请求一次性获取 USDT 信息
-     * 只发送一次 HTTP 请求，获取 name, symbol, decimals, totalSupply
+     * only sends one HTTP request, getting name, symbol, decimals, totalSupply
      */
     public function test_multicall_usdt_bsc_batch_request(): void
     {
@@ -49,7 +49,7 @@ class MulticallIntegrationTest extends TestCase
 
         $contract = new Contract($this->usdtAddress, $abi, $this->provider);
 
-        // multicall 使用 JSON-RPC 批量请求，只发送一次 HTTP 请求
+        // multicall uses JSON-RPC batch request, only sends one HTTP request
         $results = $contract->multicall([
             ['method' => 'name', 'args' => []],
             ['method' => 'symbol', 'args' => []],

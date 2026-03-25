@@ -215,6 +215,43 @@ $name = $contract->name(); // IDE recognizes with full type hints
 
 See [CLAUDE.md](CLAUDE.md) for more details.
 
+### Multicall (Batch Requests)
+
+Use JSON-RPC 2.0 batch requests to combine multiple contract calls into a single HTTP request.
+
+```php
+use Ethers\Contract\Contract;
+use Ethers\Provider\JsonRpcProvider;
+use Ethers\Utils\Units;
+
+$provider = new JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_KEY');
+$contract = new Contract($tokenAddress, $abi, $provider);
+
+// Prepare batch calls
+$calls = [
+    ['method' => 'name', 'args' => []],
+    ['method' => 'symbol', 'args' => []],
+    ['method' => 'decimals', 'args' => []],
+    ['method' => 'totalSupply', 'args' => []],
+];
+
+// Execute batch - one HTTP request for all calls
+$results = $contract->multicall($calls);
+
+// Results are in the same order as calls
+echo "Name: " . $results[0][0];
+echo "Symbol: " . $results[1][0];
+echo "Decimals: " . $results[2][0];
+echo "TotalSupply: " . Units::formatUnits($results[3][0], (int) $results[2][0]);
+```
+
+**Key features:**
+- Single HTTP request for multiple data reads
+- Results maintain call order
+- Support for methods with arguments (e.g., `balanceOf(address)`)
+
+See [examples/multicall_demo.php](examples/multicall_demo.php) for full example.
+
 ### Deploy Contract (ContractFactory)
 
 ```php
@@ -358,6 +395,7 @@ $zeroHash = Ethers::zeroHash();
 | `estimateGas($method, $args)` | Estimate gas |
 | `encodeFunction($method, $args)` | Encode function call |
 | `queryFilter($eventName, $filter)` | Query event logs |
+| `multicall($calls)` | Batch requests (JSON-RPC 2.0) |
 
 ## Comparison with ethers.js v6
 

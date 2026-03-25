@@ -18,62 +18,19 @@ composer test
 ./vendor/bin/phpunit tests/Contract/ContractTest.php
 ```
 
-## 合约调用与 IDE 支持
+## 代码格式化
 
-### 问题
+使用 Laravel Pint 保持代码风格一致:
 
-Contract 类使用 `__call` 魔术方法动态处理合约函数调用,IDE (PHPStorm/VSCode) 无法识别这些动态方法,会显示警告:
+```bash
+# 格式化所有文件
+./vendor/bin/pint
 
-```
-Method Contract::lastOrderId() is not defined
-```
+# 格式化指定文件
+./vendor/bin/pint app/Contract/Contract.php
 
-### 解决方案
-
-#### 方案 1: 使用 `call()` 方法 (简单,无 IDE 警告)
-
-```php
-$lastOrderId = $contract->call('lastOrderId');
-$lastProcessedOrderId = $contract->call('lastProcessedOrderId');
-```
-
-#### 方案 2: 使用 PHPDoc `@method` 注解 (推荐,有完整类型提示)
-
-为具体合约创建子类,添加 `@method` 注解:
-
-```php
-/**
- * @method string lastOrderId()
- * @method string lastProcessedOrderId()
- * @method array processOrders(string $count, array $overrides = [])
- * @method array getOrder(uint256 $orderId)
- */
-class StakingContract extends Contract
-{
-}
-
-// 使用
-$contract = new StakingContract($address, $abi, $wallet);
-$lastOrderId = $contract->lastOrderId(); // IDE 正常识别,有类型提示
-```
-
-**支持的注解格式:**
-
-- `@method returnType methodName()` - 无参数方法
-- `@method returnType methodName(paramType $param)` - 带参数
-- `@method returnType methodName(paramType $param, array $overrides = [])` - 支持覆盖参数
-
-**常见返回类型:**
-
-- `string` - 数字类型 (uint256/int256) 返回 BigInt 字符串
-- `string` - address 类型返回地址字符串
-- `bool` - 布尔类型
-- `array` - 交易返回 `['hash' => string, 'wait' => callable]`
-
-#### 方案 3: 使用 `getFunction()` 显式调用
-
-```php
-$lastOrderId = $contract->getFunction('lastOrderId')->staticCall([]);
+# 显示将要修改的内容 (不实际修改)
+./vendor/bin/pint --test
 ```
 
 ## 批量请求 (multicall)
@@ -95,21 +52,21 @@ $lastOrderId = $contract->getFunction('lastOrderId')->staticCall([]);
 ### <workflow>开发流程</workflow>
 
 <workflow>
-1. 基于最新正式版本创建开发分支（如 feature/xxx 基于 v1.2.0）
+1. 基于最新正式版本创建开发分支 (e.g. feature/xxx 基于 v1.2.0)
 2. 在开发分支上进行修改
 3. 运行测试确保通过
 4. 推送分支并创建 PR
 5. 使用 CodeReview 进行代码检查
-6. 合并到 main 分支后，发布新版本（创建 git tag）
+6. 合并到 main 分支后, 发布新版本 (创建 git tag)
 </workflow>
 
 **禁止在 main 分支直接开发或推送代码！**
 
 ```bash
-# 1. 创建开发分支（基于最新正式版本）
+# 1. 创建开发分支 (基于最新正式版本)
 git checkout -b feature/xxx v1.2.0
 
-# 2. 开发完成后，推送分支
+# 2. 开发完成后, 推送分支
 git push -u origin feature/xxx
 
 # 3. 创建 PR

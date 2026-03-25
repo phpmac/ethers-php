@@ -1,6 +1,6 @@
 # ethers-php
 
-PHP SDK for Ethereum，inspired by ethers.js v6
+PHP SDK for Ethereum, inspired by ethers.js v6
 
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
@@ -9,10 +9,10 @@ PHP SDK for Ethereum，inspired by ethers.js v6
 
 ## 特性
 
-- 支持人类可读 ABI（与 ethers.js v6 完全一致）
-- 完整的钱包功能（创建、签名、发送交易）
-- 合约交互（调用、部署、事件监听）
-- 工具函数（单位转换、地址校验、哈希计算）
+- 支持人类可读 ABI (与 ethers.js v6 完全一致)
+- 完整的钱包功能 (创建, 签名, 发送交易)
+- 合约交互 (调用, 部署, 事件监听)
+- 工具函数 (单位转换, 地址校验, 哈希计算)
 
 ## 安装
 
@@ -36,8 +36,8 @@ $provider = Ethers::getDefaultProvider('https://mainnet.infura.io/v3/YOUR_KEY');
 
 // 获取网络信息
 $network = $provider->getNetwork();
-echo "Chain ID：" . $network['chainId'];  // 1
-echo "Name：" . $network['name'];         // mainnet
+echo "Chain ID: " . $network['chainId'];  // 1
+echo "Name: " . $network['name'];         // mainnet
 
 // 获取当前区块号
 $blockNumber = $provider->getBlockNumber();
@@ -49,7 +49,7 @@ echo Ethers::formatEther($balance) . " ETH";
 // 获取 Gas 价格
 $gasPrice = $provider->getGasPrice();
 
-// 获取费用数据（EIP-1559）
+// 获取费用数据 (EIP-1559)
 $feeData = $provider->getFeeData();
 ```
 
@@ -88,9 +88,9 @@ $receipt = $response['wait'](1);  // 等待 1 个确认
 
 ### Contract
 
-支持两种 ABI 格式：
+支持两种 ABI 格式:
 
-#### 1. 人类可读 ABI（推荐，与 ethers.js 一致）
+#### 1. 人类可读 ABI (推荐, 与 ethers.js 一致)
 
 ```php
 use Ethers\Ethers;
@@ -159,12 +159,12 @@ $contract = Ethers::contract($tokenAddress, $abi, $wallet);
 $response = $contract->transfer($toAddress, Ethers::parseUnits('100', 18));
 $receipt = $response['wait']();
 
-echo "Tx Hash：" . $response['hash'];
+echo "Tx Hash: " . $response['hash'];
 
 // 估算 Gas
 $gas = $contract->estimateGas('transfer', [$toAddress, Ethers::parseUnits('100', 18)]);
 
-// 模拟调用（staticCall）
+// 模拟调用 (staticCall)
 $result = $contract->staticCall('transfer', [$toAddress, Ethers::parseUnits('100', 18)]);
 ```
 
@@ -187,18 +187,18 @@ $response = $transferFunc->send([$to, $amount]);
 $tx = $transferFunc->populateTransaction([$to, $amount]);
 ```
 
-#### IDE 支持（可选）
+#### IDE 支持 (可选)
 
-Contract 使用 PHP 的 `__call` 魔术方法进行动态函数调用，IDE 可能会提示"方法未定义"警告。
+Contract 使用 PHP 的 `__call` 魔术方法进行动态函数调用, IDE 可能会提示"方法未定义"警告.
 
-**方案 1：使用 `call()` 方法**
+**方案 1: 使用 `call()` 方法**
 
 ```php
 $name = $contract->call('name');
 $balance = $contract->call('balanceOf', [$address]);
 ```
 
-**方案 2：创建带 PHPDoc 的类型化子类**
+**方案 2: 创建带 PHPDoc 的类型化子类**
 
 ```php
 /**
@@ -213,9 +213,46 @@ $contract = new TokenContract($address, $abi, $provider);
 $name = $contract->name(); // IDE 识别并提供完整类型提示
 ```
 
-详见 [CLAUDE.md](CLAUDE.md)。
+详见 [CLAUDE.md](CLAUDE.md).
 
-### 部署合约（ContractFactory）
+### 批量请求 (Multicall)
+
+使用 JSON-RPC 2.0 批量请求特性, 将多个合约调用合并为**一次 HTTP 请求**.
+
+```php
+use Ethers\Contract\Contract;
+use Ethers\Provider\JsonRpcProvider;
+use Ethers\Utils\Units;
+
+$provider = new JsonRpcProvider('https://mainnet.infura.io/v3/YOUR_KEY');
+$contract = new Contract($tokenAddress, $abi, $provider);
+
+// 准备批量调用请求
+$calls = [
+    ['method' => 'name', 'args' => []],
+    ['method' => 'symbol', 'args' => []],
+    ['method' => 'decimals', 'args' => []],
+    ['method' => 'totalSupply', 'args' => []],
+];
+
+// 执行批量请求 - 一次 HTTP 请求获取所有数据
+$results = $contract->multicall($calls);
+
+// 结果顺序与请求顺序一致
+echo "Name: " . $results[0][0];
+echo "Symbol: " . $results[1][0];
+echo "Decimals: " . $results[2][0];
+echo "TotalSupply: " . Units::formatUnits($results[3][0], (int) $results[2][0]);
+```
+
+**关键特点:**
+- 一次 HTTP 请求获取多个数据
+- 返回顺序与请求顺序一致
+- 支持带参数的方法调用 (如 `balanceOf(address)`)
+
+完整示例见 [examples/multicall_demo.php](examples/multicall_demo.php).
+
+### 部署合约 (ContractFactory)
 
 ```php
 use Ethers\Ethers;
@@ -229,7 +266,7 @@ $abi = [
     'function totalSupply() view returns (uint256)',
 ];
 
-// 合约字节码（从编译器获取）
+// 合约字节码 (从编译器获取)
 $bytecode = '0x608060405234801561001057600080fd5b50...';
 
 // 创建 Factory
@@ -254,7 +291,7 @@ echo "Tx Hash: " . $deployTx['hash'];
 $name = $contract->name();  // "My Token"
 ```
 
-### 解析 ABI（Interface）
+### 解析 ABI (Interface)
 
 ```php
 use Ethers\Ethers;
@@ -322,9 +359,9 @@ $zeroHash = Ethers::zeroHash();
 | `getNetwork()` | 获取网络信息 |
 | `getBlockNumber()` | 获取当前区块号 |
 | `getBalance($address)` | 获取账户余额 |
-| `getTransactionCount($address)` | 获取交易计数（nonce） |
+| `getTransactionCount($address)` | 获取交易计数 (nonce) |
 | `getGasPrice()` | 获取 Gas 价格 |
-| `getFeeData()` | 获取费用数据（EIP-1559）|
+| `getFeeData()` | 获取费用数据 (EIP-1559) |
 | `estimateGas($tx)` | 估算 Gas |
 | `call($tx)` | 只读调用 |
 | `sendRawTransaction($signedTx)` | 发送已签名交易 |
@@ -358,6 +395,7 @@ $zeroHash = Ethers::zeroHash();
 | `estimateGas($method, $args)` | 估算 Gas |
 | `encodeFunction($method, $args)` | 编码函数调用 |
 | `queryFilter($eventName, $filter)` | 查询事件日志 |
+| `multicall($calls)` | 批量请求 (JSON-RPC 2.0) |
 
 ## 与 ethers.js v6 对比
 

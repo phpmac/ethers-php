@@ -11,7 +11,7 @@ namespace Ethers\Errors;
  * 参考 ethers.js v6 的 ReplacementUnderpricedError
  * 错误代码: REPLACEMENT_UNDERPRICED
  *
- * 场景: 尝试用相同 nonce 替换交易，但 gas price 没有比之前高至少 10%
+ * Scenario: try to replace a transaction with the same nonce, but gas price is not at least 10% higher than the previous one
  */
 class ReplacementUnderpricedError extends EthersException
 {

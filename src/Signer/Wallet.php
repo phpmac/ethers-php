@@ -276,7 +276,7 @@ class Wallet
     /**
      * 取消 pending 的交易
      *
-     * 原理: 用相同的 nonce 发送一个 0 ETH 给自己的交易，覆盖原交易
+     * 原理: 用相同的 nonce 发送一个 0 ETH 给自己的交易, 覆盖原交易
      *
      * @param  string  $txHash  要取消的交易哈希
      * @param  float  $gasPriceBump  gas 价格提升比例 (默认 10%)
@@ -298,7 +298,7 @@ class Wallet
 
         // 检查交易是否已确认
         if ($tx['blockNumber'] !== null) {
-            throw new RuntimeException('交易已确认，无法取消');
+            throw new RuntimeException('交易已确认, cannot cancel');
         }
 
         // 构建取消交易

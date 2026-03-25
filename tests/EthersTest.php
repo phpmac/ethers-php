@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Ethers\Tests;
 
-use Ethers\Contract\ContractFactory;
 use Ethers\Contract\Abi;
+use Ethers\Contract\ContractFactory;
 use Ethers\Ethers;
 use PHPUnit\Framework\TestCase;
 
