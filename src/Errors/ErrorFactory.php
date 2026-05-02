@@ -31,18 +31,12 @@ class ErrorFactory
             return ReplacementUnderpricedError::fromRpcError($rpcCode, $rpcMessage, $transaction);
         }
 
-        // nonce 过期 (nonce too low)
-        if (str_contains($lowerMessage, 'nonce too low')) {
-            return NonceExpiredError::fromRpcError($rpcCode, $rpcMessage, $transaction);
-        }
-
-        // nonce 太高
-        if (str_contains($lowerMessage, 'nonce too high')) {
-            return NonceExpiredError::fromRpcError($rpcCode, $rpcMessage, $transaction);
-        }
-
-        // 无效 nonce
-        if (str_contains($lowerMessage, 'invalid nonce')) {
+        // nonce 相关错误
+        if (
+            str_contains($lowerMessage, 'nonce too low') ||
+            str_contains($lowerMessage, 'nonce too high') ||
+            str_contains($lowerMessage, 'invalid nonce')
+        ) {
             return NonceExpiredError::fromRpcError($rpcCode, $rpcMessage, $transaction);
         }
 

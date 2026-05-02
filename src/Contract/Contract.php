@@ -6,6 +6,8 @@ namespace Ethers\Contract;
 
 use Ethers\Provider\JsonRpcProvider;
 use Ethers\Signer\Wallet;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Contract
@@ -75,19 +77,21 @@ class Contract extends BaseContract
     {
         $provider = $this->getProvider();
         if ($provider === null) {
-            throw new \RuntimeException('需要 Provider 才能使用 multicall');
+            throw new RuntimeException('需要 Provider 才能使用 multicall');
         }
 
         if (empty($calls)) {
             return [];
         }
 
-        // 构建批量请求
+        $signer = $this->getSigner();
+        $from = $signer !== null ? $signer->getAddress() : null;
+
         $requests = [];
         foreach ($calls as $call) {
             $func = $this->getFunction($call['method']);
             if ($func === null) {
-                throw new \InvalidArgumentException("方法 {$call['method']} 不存在");
+                throw new InvalidArgumentException("方法 {$call['method']} 不存在");
             }
 
             $args = $call['args'] ?? [];
@@ -98,10 +102,8 @@ class Contract extends BaseContract
                 'data' => $data,
             ];
 
-            // 如果有 signer, 添加 from
-            $signer = $this->getSigner();
-            if ($signer !== null) {
-                $tx['from'] = $signer->getAddress();
+            if ($from !== null) {
+                $tx['from'] = $from;
             }
 
             $requests[] = [
@@ -111,10 +113,8 @@ class Contract extends BaseContract
             ];
         }
 
-        // 发送批量请求 (一次网络请求)
         $results = $provider->sendBatch($requests);
 
-        // 解码结果
         $decoded = [];
         foreach ($results as $index => $result) {
             if ($result instanceof \Throwable) {

@@ -44,22 +44,15 @@ class Wallet
      */
     private function deriveAddress(string $privateKey): string
     {
-        // 使用 elliptic-php 获取公钥
         $ec = new EC('secp256k1');
         $keyPair = $ec->keyFromPrivate($privateKey, 'hex');
         $publicKey = $keyPair->getPublic(false, 'hex');
 
-        // 移除 04 前缀 (非压缩公钥标识)
         $publicKey = substr($publicKey, 2);
-
-        // Keccak256 哈希公钥
-        $hash = \kornrunner\Keccak::hash(hex2bin($publicKey), 256);
-
-        // 取后 20 字节 (40 个十六进制字符) 作为地址
+        $hash = Keccak::hashHex($publicKey);
         $address = substr($hash, -40);
 
-        // 计算 EIP-55 checksum 地址
-        return $this->toChecksumAddress($address);
+        return Hex::toChecksumAddress($address);
     }
 
     /**
@@ -329,27 +322,5 @@ class Wallet
         $privateKey = bin2hex(random_bytes(32));
 
         return new self($privateKey, $provider);
-    }
-
-    /**
-     * 将地址转换为 EIP-55 checksum 格式
-     */
-    private function toChecksumAddress(string $address): string
-    {
-        $address = strtolower($address);
-        $hash = \kornrunner\Keccak::hash($address, 256);
-
-        $checksumAddress = '0x';
-        for ($i = 0; $i < 40; $i++) {
-            $char = $address[$i];
-            $hashChar = $hash[$i];
-            if (ctype_alpha($char) && intval($hashChar, 16) >= 8) {
-                $checksumAddress .= strtoupper($char);
-            } else {
-                $checksumAddress .= $char;
-            }
-        }
-
-        return $checksumAddress;
     }
 }

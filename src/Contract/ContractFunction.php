@@ -99,23 +99,11 @@ class ContractFunction
             throw new RuntimeException('需要 Provider 才能调用合约方法');
         }
 
-        $data = $this->contract->getInterface()->encodeFunctionData($this->getName(), $args);
-
-        $tx = array_merge([
-            'to' => $this->contract->target,
-            'data' => $data,
-        ], $overrides);
-
-        // 如果有 signer, 添加 from
-        $signer = $this->contract->getSigner();
-        if ($signer !== null && ! isset($tx['from'])) {
-            $tx['from'] = $signer->getAddress();
-        }
+        $tx = $this->buildCallTransaction($args, $overrides);
 
         $result = $provider->call($tx);
         $decoded = $this->contract->getInterface()->decodeFunctionResult($this->getName(), $result);
 
-        // 如果只有一个返回值, 直接返回值 (符合 ethers.js 行为)
         $outputs = $this->fragment['outputs'] ?? [];
         if (count($outputs) === 1) {
             return $decoded[0];
@@ -162,18 +150,7 @@ class ContractFunction
             throw new RuntimeException('需要 Provider 才能估算 gas');
         }
 
-        $data = $this->contract->getInterface()->encodeFunctionData($this->getName(), $args);
-
-        $tx = array_merge([
-            'to' => $this->contract->target,
-            'data' => $data,
-        ], $overrides);
-
-        // 如果有 signer, 添加 from
-        $signer = $this->contract->getSigner();
-        if ($signer !== null && ! isset($tx['from'])) {
-            $tx['from'] = $signer->getAddress();
-        }
+        $tx = $this->buildCallTransaction($args, $overrides);
 
         return $provider->estimateGas($tx);
     }
@@ -187,20 +164,7 @@ class ContractFunction
      */
     public function populateTransaction(array $args = [], array $overrides = []): array
     {
-        $data = $this->contract->getInterface()->encodeFunctionData($this->getName(), $args);
-
-        $tx = array_merge([
-            'to' => $this->contract->target,
-            'data' => $data,
-        ], $overrides);
-
-        // 如果有 signer, 添加 from
-        $signer = $this->contract->getSigner();
-        if ($signer !== null && ! isset($tx['from'])) {
-            $tx['from'] = $signer->getAddress();
-        }
-
-        return $tx;
+        return $this->buildCallTransaction($args, $overrides);
     }
 
     /**
@@ -210,20 +174,31 @@ class ContractFunction
      */
     public function __invoke(mixed ...$args): mixed
     {
-        // 最后一个参数可能是 overrides
-        $overrides = [];
-        if (! empty($args) && is_array(end($args))) {
-            $lastArg = end($args);
-            if (isset($lastArg['value']) || isset($lastArg['gas']) || isset($lastArg['gasLimit']) || isset($lastArg['from'])) {
-                $overrides = array_pop($args);
-            }
-        }
+        $overrides = BaseContract::extractOverrides($args);
 
-        // 根据 stateMutability 决定调用方式
         if (in_array($this->getStateMutability(), ['view', 'pure'])) {
             return $this->staticCall($args, $overrides);
         }
 
         return $this->send($args, $overrides);
+    }
+
+    /**
+     * 构建调用交易对象
+     */
+    private function buildCallTransaction(array $args, array $overrides): array
+    {
+        $data = $this->contract->getInterface()->encodeFunctionData($this->getName(), $args);
+        $tx = array_merge([
+            'to' => $this->contract->target,
+            'data' => $data,
+        ], $overrides);
+
+        $signer = $this->contract->getSigner();
+        if ($signer !== null && ! isset($tx['from'])) {
+            $tx['from'] = $signer->getAddress();
+        }
+
+        return $tx;
     }
 }

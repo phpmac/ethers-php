@@ -74,16 +74,7 @@ class Hex
             return '0';
         }
 
-        $result = '0';
-        $base = '1';
-
-        for ($i = strlen($hex) - 1; $i >= 0; $i--) {
-            $digit = hexdec($hex[$i]);
-            $result = bcadd($result, bcmul((string) $digit, $base));
-            $base = bcmul($base, '16');
-        }
-
-        return $result;
+        return gmp_strval(gmp_init($hex, 16));
     }
 
     /**
@@ -129,7 +120,8 @@ class Hex
         }
 
         $bytes = [];
-        for ($i = 0; $i < strlen($hex); $i += 2) {
+        $len = strlen($hex);
+        for ($i = 0; $i < $len; $i += 2) {
             $bytes[] = hexdec(substr($hex, $i, 2));
         }
 
@@ -154,5 +146,26 @@ class Hex
         $stripped = self::stripPrefix($hex);
 
         return '0x'.str_pad($stripped, $length, '0', STR_PAD_RIGHT);
+    }
+
+    /**
+     * 计算 EIP-55 checksum 地址
+     */
+    public static function toChecksumAddress(string $address): string
+    {
+        $address = strtolower(self::stripPrefix($address));
+        $hash = self::stripPrefix(Keccak::hash($address));
+
+        $checksumAddress = '0x';
+        for ($i = 0; $i < 40; $i++) {
+            $char = $address[$i];
+            if (ctype_alpha($char) && hexdec($hash[$i]) >= 8) {
+                $checksumAddress .= strtoupper($char);
+            } else {
+                $checksumAddress .= $char;
+            }
+        }
+
+        return $checksumAddress;
     }
 }

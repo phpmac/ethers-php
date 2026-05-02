@@ -90,27 +90,8 @@ class JsonRpcProvider
             }
 
             return $body['result'] ?? null;
-        } catch (ConnectException $e) {
-            throw new NetworkError(
-                'RPC 连接失败: '.$e->getMessage(),
-                'connect',
-                ['url' => $this->url]
-            );
-        } catch (GuzzleException $e) {
-            if (str_contains($e->getMessage(), 'timed out') || str_contains($e->getMessage(), 'timeout')) {
-                throw new TimeoutError(
-                    'RPC 请求超时: '.$e->getMessage(),
-                    $method,
-                    'timeout',
-                    ['url' => $this->url]
-                );
-            }
-
-            throw new NetworkError(
-                'RPC 请求失败: '.$e->getMessage(),
-                'request',
-                ['url' => $this->url]
-            );
+        } catch (ConnectException|GuzzleException $e) {
+            $this->handleGuzzleError($e, $method);
         }
     }
 
@@ -177,27 +158,8 @@ class JsonRpcProvider
             }
 
             return $results;
-        } catch (ConnectException $e) {
-            throw new NetworkError(
-                'RPC 批量连接失败: '.$e->getMessage(),
-                'connect',
-                ['url' => $this->url]
-            );
-        } catch (GuzzleException $e) {
-            if (str_contains($e->getMessage(), 'timed out') || str_contains($e->getMessage(), 'timeout')) {
-                throw new TimeoutError(
-                    'RPC 批量请求超时: '.$e->getMessage(),
-                    'sendBatch',
-                    'timeout',
-                    ['url' => $this->url]
-                );
-            }
-
-            throw new NetworkError(
-                'RPC 批量请求失败: '.$e->getMessage(),
-                'request',
-                ['url' => $this->url]
-            );
+        } catch (ConnectException|GuzzleException $e) {
+            $this->handleGuzzleError($e, 'sendBatch');
         }
     }
 
@@ -621,5 +583,34 @@ class JsonRpcProvider
         }
 
         return $formatted;
+    }
+
+    /**
+     * 统一处理 Guzzle 连接/请求异常
+     */
+    private function handleGuzzleError(ConnectException|GuzzleException $e, string $method): never
+    {
+        if ($e instanceof ConnectException) {
+            throw new NetworkError(
+                'RPC 连接失败: '.$e->getMessage(),
+                'connect',
+                ['url' => $this->url]
+            );
+        }
+
+        if (str_contains($e->getMessage(), 'timed out') || str_contains($e->getMessage(), 'timeout')) {
+            throw new TimeoutError(
+                'RPC 请求超时: '.$e->getMessage(),
+                $method,
+                'timeout',
+                ['url' => $this->url]
+            );
+        }
+
+        throw new NetworkError(
+            'RPC 请求失败: '.$e->getMessage(),
+            'request',
+            ['url' => $this->url]
+        );
     }
 }

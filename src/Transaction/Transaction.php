@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Ethers\Transaction;
 
 use Ethers\Utils\Hex;
+use Ethers\Utils\Keccak;
 use kornrunner\Secp256k1;
 
 /**
@@ -45,7 +46,6 @@ class Transaction
     {
         $chainId = $this->data['chainId'];
 
-        // 构建待签名的 RLP 数据 (包含 chainId, 0, 0 用于 EIP-155)
         $rawTx = [
             $this->formatValue($this->data['nonce'] ?? 0),
             $this->formatValue($this->data['gasPrice'] ?? 0),
@@ -59,7 +59,7 @@ class Transaction
         ];
 
         $rlpEncoded = RLP::encode($rawTx);
-        $hash = \kornrunner\Keccak::hash(hex2bin($rlpEncoded), 256);
+        $hash = Hex::stripPrefix(Keccak::hashHex($rlpEncoded));
 
         // 签名
         $secp256k1 = new Secp256k1;
@@ -92,7 +92,6 @@ class Transaction
     {
         $chainId = $this->data['chainId'];
 
-        // EIP-1559 交易字段
         $rawTx = [
             $this->formatValue($chainId),
             $this->formatValue($this->data['nonce'] ?? 0),
@@ -102,13 +101,12 @@ class Transaction
             $this->formatAddress($this->data['to'] ?? ''),
             $this->formatValue($this->data['value'] ?? 0),
             $this->formatData($this->data['data'] ?? ''),
-            [], // accessList
+            [],
         ];
 
         $rlpEncoded = RLP::encode($rawTx);
-        // EIP-1559 交易前缀 0x02
         $toSign = '02'.$rlpEncoded;
-        $hash = \kornrunner\Keccak::hash(hex2bin($toSign), 256);
+        $hash = Hex::stripPrefix(Keccak::hashHex($toSign));
 
         // 签名
         $secp256k1 = new Secp256k1;

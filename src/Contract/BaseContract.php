@@ -223,12 +223,7 @@ class BaseContract
      */
     public function call(string $method, array $args = [], array $overrides = []): mixed
     {
-        $func = $this->getFunction($method);
-        if ($func === null) {
-            throw new InvalidArgumentException("方法 {$method} 不存在");
-        }
-
-        return $func->staticCall($args, $overrides);
+        return $this->getFunctionOrThrow($method)->staticCall($args, $overrides);
     }
 
     /**
@@ -241,12 +236,7 @@ class BaseContract
      */
     public function send(string $method, array $args = [], array $overrides = []): array
     {
-        $func = $this->getFunction($method);
-        if ($func === null) {
-            throw new InvalidArgumentException("方法 {$method} 不存在");
-        }
-
-        return $func->send($args, $overrides);
+        return $this->getFunctionOrThrow($method)->send($args, $overrides);
     }
 
     /**
@@ -259,12 +249,7 @@ class BaseContract
      */
     public function estimateGas(string $method, array $args = [], array $overrides = []): string
     {
-        $func = $this->getFunction($method);
-        if ($func === null) {
-            throw new InvalidArgumentException("方法 {$method} 不存在");
-        }
-
-        return $func->estimateGas($args, $overrides);
+        return $this->getFunctionOrThrow($method)->estimateGas($args, $overrides);
     }
 
     /**
@@ -331,26 +316,14 @@ class BaseContract
      */
     public function __call(string $name, array $arguments): mixed
     {
-        $func = $this->getFunction($name);
-        if ($func === null) {
-            throw new InvalidArgumentException("方法 {$name} 不存在");
-        }
+        $func = $this->getFunctionOrThrow($name);
 
-        // 最后一个参数可能是 overrides
-        $overrides = [];
-        if (! empty($arguments) && is_array(end($arguments))) {
-            $lastArg = end($arguments);
-            if (isset($lastArg['value']) || isset($lastArg['gas']) || isset($lastArg['gasLimit']) || isset($lastArg['from'])) {
-                $overrides = array_pop($arguments);
-            }
-        }
+        $overrides = self::extractOverrides($arguments);
 
-        // 根据 stateMutability 决定调用方式
         if (in_array($func->getStateMutability(), ['view', 'pure'])) {
             return $func->staticCall($arguments, $overrides);
         }
 
-        // 需要发送交易
         return $func->send($arguments, $overrides);
     }
 
@@ -364,5 +337,35 @@ class BaseContract
         }
 
         throw new InvalidArgumentException("属性 {$name} 不存在");
+    }
+
+    /**
+     * 获取函数或抛出异常
+     */
+    private function getFunctionOrThrow(string $method): ContractFunction
+    {
+        $func = $this->getFunction($method);
+        if ($func === null) {
+            throw new InvalidArgumentException("方法 {$method} 不存在");
+        }
+
+        return $func;
+    }
+
+    /**
+     * 从参数列表中提取 overrides (最后一个参数如果是包含交易字段的数组则视为 overrides)
+     */
+    public static function extractOverrides(array &$args): array
+    {
+        $overrides = [];
+        if (! empty($args) && is_array(end($args))) {
+            $lastArg = end($args);
+            if (isset($lastArg['value']) || isset($lastArg['gas']) || isset($lastArg['gasLimit'])
+                || isset($lastArg['gasPrice']) || isset($lastArg['maxFeePerGas']) || isset($lastArg['from'])) {
+                $overrides = array_pop($args);
+            }
+        }
+
+        return $overrides;
     }
 }

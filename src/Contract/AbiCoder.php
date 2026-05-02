@@ -43,17 +43,9 @@ class AbiCoder
             throw new InvalidArgumentException('类型和值的数量不匹配');
         }
 
-        $headSize = 0;
+        $headSize = count($types) * 32;
         $heads = [];
         $tails = [];
-
-        foreach ($types as $i => $type) {
-            if ($this->isDynamic($type)) {
-                $headSize += 32;
-            } else {
-                $headSize += 32;
-            }
-        }
 
         $tailOffset = $headSize;
 
@@ -218,21 +210,16 @@ class AbiCoder
      */
     private function encodeInteger(mixed $value, bool $signed = false): string
     {
+        // hex 输入直接使用, 避免 hex->BigInt->hex 往返转换
         if (is_string($value) && str_starts_with($value, '0x')) {
-            $value = Hex::toBigInt($value);
-        }
-
-        $value = (string) $value;
-
-        // 处理负数 (二进制补码)
-        if ($signed && str_starts_with($value, '-')) {
-            $absValue = substr($value, 1);
-            // 计算补码: 2^256 - |value|
+            $hex = Hex::stripPrefix($value);
+        } elseif ($signed && is_string($value) && str_starts_with($value, '-')) {
+            // 处理负数 (二进制补码): 2^256 - |value|
             $maxValue = bcpow('2', '256');
-            $twosComplement = bcsub($maxValue, $absValue);
+            $twosComplement = bcsub($maxValue, substr($value, 1));
             $hex = Hex::stripPrefix(Hex::fromBigInt($twosComplement));
         } else {
-            $hex = Hex::stripPrefix(Hex::fromBigInt($value));
+            $hex = Hex::stripPrefix(Hex::fromBigInt((string) $value));
         }
 
         return '0x'.str_pad($hex, 64, '0', STR_PAD_LEFT);
@@ -273,7 +260,8 @@ class AbiCoder
     {
         $hex = Hex::stripPrefix($value);
         $length = strlen($hex) / 2;
-        $paddedLength = ceil(strlen($hex) / 64) * 64;
+        $len = strlen($hex);
+        $paddedLength = $len + (64 - ($len % 64)) % 64;
 
         return $this->encodeInteger($length).str_pad($hex, (int) $paddedLength, '0', STR_PAD_RIGHT);
     }
@@ -285,7 +273,8 @@ class AbiCoder
     {
         $hex = bin2hex($value);
         $length = strlen($value);
-        $paddedLength = ceil(strlen($hex) / 64) * 64;
+        $len = strlen($hex);
+        $paddedLength = $len + (64 - ($len % 64)) % 64;
 
         return Hex::stripPrefix($this->encodeInteger($length)).str_pad($hex, max((int) $paddedLength, 64), '0', STR_PAD_RIGHT);
     }
@@ -326,7 +315,6 @@ class AbiCoder
      */
     private function encodeTuple(string $type, array $values): string
     {
-        // 简化处理, 元组作为数组处理
         return $this->encode(array_keys($values), array_values($values));
     }
 

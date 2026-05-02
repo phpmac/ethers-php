@@ -276,7 +276,7 @@ class Abi
         $current = '';
         $depth = 0;
 
-        for ($i = 0; $i < strlen($paramsStr); $i++) {
+        for ($i = 0, $len = strlen($paramsStr); $i < $len; $i++) {
             $char = $paramsStr[$i];
 
             if ($char === '(' || $char === '[') {
@@ -560,7 +560,7 @@ class Abi
      */
     public function getAllErrors(): array
     {
-        return array_filter($this->errors, fn ($key) => ! str_starts_with($key, '0x'), ARRAY_FILTER_USE_KEY);
+        return $this->filterByNameKey($this->errors);
     }
 
     /**
@@ -791,7 +791,7 @@ class Abi
      */
     public function getAllFunctions(): array
     {
-        return array_filter($this->functions, fn ($key) => ! str_starts_with($key, '0x'), ARRAY_FILTER_USE_KEY);
+        return $this->filterByNameKey($this->functions);
     }
 
     /**
@@ -799,6 +799,14 @@ class Abi
      */
     public function getAllEvents(): array
     {
-        return array_filter($this->events, fn ($key) => ! str_starts_with($key, '0x'), ARRAY_FILTER_USE_KEY);
+        return $this->filterByNameKey($this->events);
+    }
+
+    /**
+     * 过滤掉 0x 开头的 selector/topic key, 只保留名称 key
+     */
+    private function filterByNameKey(array $items): array
+    {
+        return array_filter($items, fn ($key) => ! str_starts_with($key, '0x'), ARRAY_FILTER_USE_KEY);
     }
 }

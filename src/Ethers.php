@@ -206,20 +206,7 @@ class Ethers
             throw new \InvalidArgumentException('无效的地址');
         }
 
-        $address = strtolower(substr($address, 2));
-        $hash = Keccak::hash($address);
-        $hash = substr($hash, 2);
-
-        $checksumAddress = '0x';
-        for ($i = 0; $i < 40; $i++) {
-            if (hexdec($hash[$i]) >= 8) {
-                $checksumAddress .= strtoupper($address[$i]);
-            } else {
-                $checksumAddress .= $address[$i];
-            }
-        }
-
-        return $checksumAddress;
+        return Hex::toChecksumAddress($address);
     }
 
     /**
@@ -233,11 +220,10 @@ class Ethers
      */
     public static function getCreateAddress(string $from, int|string $nonce): string
     {
-        $from = strtolower(substr($from, 2));
+        $from = strtolower(Hex::stripPrefix($from));
 
-        // 格式化 nonce 为十六进制
         if (is_string($nonce) && str_starts_with($nonce, '0x')) {
-            $nonceHex = substr($nonce, 2);
+            $nonceHex = Hex::stripPrefix($nonce);
         } else {
             $nonceHex = dechex((int) $nonce);
         }
@@ -248,11 +234,8 @@ class Ethers
             $nonceHex = '0'.$nonceHex;
         }
 
-        // RLP 编码 [from, nonce]
         $encoded = RLP::encode([$from, $nonceHex]);
-
-        // Keccak256 哈希并取后 20 字节
-        $hash = Keccak::hash(hex2bin($encoded));
+        $hash = Keccak::hashHex($encoded);
         $address = '0x'.substr($hash, -40);
 
         return self::getAddress($address);

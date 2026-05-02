@@ -9,6 +9,10 @@ namespace Ethers\Constants;
  */
 class Numbers
 {
+    private const _FF = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+
+    private const _7F = '7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+
     /**
      * uint256 最大值 (2^256 - 1)
      */

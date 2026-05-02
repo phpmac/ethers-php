@@ -45,44 +45,31 @@ class RLP
      */
     private static function encodeString(string $input): string
     {
-        // 空字符串
         if ($input === '') {
             return '80';
         }
 
-        // 确保偶数长度的十六进制字符串
         if (strlen($input) % 2 !== 0) {
             $input = '0'.$input;
         }
 
-        // 如果是十六进制字符串, 转为二进制长度
-        $bytes = hex2bin($input);
-        if ($bytes === false) {
-            throw new \InvalidArgumentException('无效的十六进制字符串: '.$input);
-        }
-        $length = strlen($bytes);
+        $length = strlen($input) / 2;
 
-        // 确保 input 是偶数长度 (用于返回)
-        $normalizedInput = strlen($input) % 2 !== 0 ? '0'.$input : $input;
-
-        // 单字节且值 < 0x80
-        if ($length === 1 && ord($bytes[0]) < 0x80) {
-            return $normalizedInput;
+        if ($length === 1 && hexdec($input) < 0x80) {
+            return $input;
         }
 
-        // 短字符串 (长度 < 56)
         if ($length < 56) {
             $prefix = dechex(0x80 + $length);
 
-            return $prefix.$normalizedInput;
+            return $prefix.$input;
         }
 
-        // 长字符串 (长度 >= 56)
         $lengthHex = self::intToHex($length);
-        $lengthOfLength = strlen((string) hex2bin($lengthHex));
+        $lengthOfLength = strlen($lengthHex) / 2;
         $prefix = dechex(0xB7 + $lengthOfLength);
 
-        return $prefix.$lengthHex.$normalizedInput;
+        return $prefix.$lengthHex.$input;
     }
 
     /**
@@ -97,25 +84,19 @@ class RLP
         }
 
         if ($output === '') {
-            return 'c0'; // 空列表
+            return 'c0';
         }
 
-        $bytes = hex2bin($output);
-        if ($bytes === false) {
-            throw new \InvalidArgumentException('无效的列表编码');
-        }
-        $length = strlen($bytes);
+        $length = strlen($output) / 2;
 
-        // 短列表 (长度 < 56)
         if ($length < 56) {
             $prefix = dechex(0xC0 + $length);
 
             return $prefix.$output;
         }
 
-        // 长列表 (长度 >= 56)
         $lengthHex = self::intToHex($length);
-        $lengthOfLength = strlen((string) hex2bin($lengthHex));
+        $lengthOfLength = strlen($lengthHex) / 2;
         $prefix = dechex(0xF7 + $lengthOfLength);
 
         return $prefix.$lengthHex.$output;

@@ -98,27 +98,9 @@ class ContractFactory
             throw new RuntimeException('Signer 需要连接 Provider');
         }
 
-        // 分离 overrides
-        $overrides = [];
-        if (! empty($args) && is_array(end($args))) {
-            $lastArg = end($args);
-            if (isset($lastArg['value']) || isset($lastArg['gas']) || isset($lastArg['gasLimit']) || isset($lastArg['gasPrice']) || isset($lastArg['maxFeePerGas'])) {
-                $overrides = array_pop($args);
-            }
-        }
+        $overrides = BaseContract::extractOverrides($args);
 
-        // 编码构造函数参数
-        $data = $this->bytecode;
-        $constructor = $this->interface->getConstructor();
-        if ($constructor !== null && ! empty($constructor['inputs'])) {
-            if (count($args) !== count($constructor['inputs'])) {
-                throw new InvalidArgumentException(
-                    sprintf('构造函数需要 %d 个参数, 但提供了 %d 个', count($constructor['inputs']), count($args))
-                );
-            }
-            $encodedArgs = $this->interface->encodeDeploy($args);
-            $data .= Hex::stripPrefix($encodedArgs);
-        }
+        $data = $this->encodeConstructorArgs($args);
 
         // 获取当前 nonce 以计算合约地址
         $nonce = $this->runner->getNonce();
@@ -162,6 +144,14 @@ class ContractFactory
      */
     public function getDeployTransaction(mixed ...$args): string
     {
+        return $this->encodeConstructorArgs($args);
+    }
+
+    /**
+     * 编码构造函数参数并拼接字节码
+     */
+    private function encodeConstructorArgs(array $args): string
+    {
         $data = $this->bytecode;
         $constructor = $this->interface->getConstructor();
 
@@ -171,8 +161,7 @@ class ContractFactory
                     sprintf('构造函数需要 %d 个参数, 但提供了 %d 个', count($constructor['inputs']), count($args))
                 );
             }
-            $encodedArgs = $this->interface->encodeDeploy($args);
-            $data .= Hex::stripPrefix($encodedArgs);
+            $data .= Hex::stripPrefix($this->interface->encodeDeploy($args));
         }
 
         return $data;
